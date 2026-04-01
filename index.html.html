@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IPL Fantasy League 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1D6BF3;--green:#16A34A;--red:#DC2626;--amber:#D97706;--gold:#F59E0B;
+  --bg:#F7F6F3;--white:#FFF;--border:#EBEBEB;
+  --text:#111;--muted:#888;--faint:#BBB;
+  --r:18px;--rs:12px;
+  --F:'Bebas Neue',sans-serif;--B:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:var(--B);color:var(--text);background:var(--bg)}
+.sc{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;background:var(--bg)}
+.sc.on{display:flex}
+
+/* TOAST */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;border-radius:30px;padding:10px 22px;font-size:14px;font-weight:700;z-index:9999;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88vw;text-align:center}
+#toast.show{opacity:1}
+
+/* SOLD POPUP - GREEN */
+#sold-popup{position:fixed;inset:0;z-index:8000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);opacity:0;pointer-events:none;transition:opacity .3s}
+#sold-popup.show{opacity:1;pointer-events:all}
+.sold-box{background:linear-gradient(145deg,#052e16,#0D0D0D);border:2px solid #16A34A;border-radius:28px;padding:36px 28px;text-align:center;max-width:320px;width:90%;transform:translateY(30px);transition:transform .3s;box-shadow:0 0 60px rgba(22,163,74,.4)}
+#sold-popup.show .sold-box{transform:translateY(0)}
+.sold-hammer{font-size:52px;margin-bottom:8px}
+.sold-label{font-family:var(--F);font-size:52px;color:#16A34A;letter-spacing:3px;margin-bottom:14px;text-shadow:0 0 20px rgba(22,163,74,.6)}
+.sold-player{font-family:var(--F);font-size:28px;color:#fff;margin-bottom:6px;letter-spacing:1px}
+.sold-to{font-size:14px;color:#888;margin-bottom:8px}
+.sold-to span{color:#4ADE80;font-weight:700;font-size:16px}
+.sold-price{font-family:var(--F);font-size:38px;color:#F59E0B;letter-spacing:1px}
+
+/* UNSOLD POPUP */
+#unsold-popup{position:fixed;inset:0;z-index:8000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);opacity:0;pointer-events:none;transition:opacity .3s}
+#unsold-popup.show{opacity:1;pointer-events:all}
+.unsold-box{background:#1A1A1A;border:2px solid #374151;border-radius:28px;padding:32px 28px;text-align:center;max-width:300px;width:88%;transform:translateY(30px);transition:transform .3s}
+#unsold-popup.show .unsold-box{transform:translateY(0)}
+
+/* SIDEBAR */
+#sb-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none}
+#sb-ov.on{display:block}
+#sidebar{position:fixed;top:0;right:0;width:min(320px,90vw);height:100%;background:var(--white);z-index:501;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-6px 0 40px rgba(0,0,0,.12)}
+#sidebar.on{transform:translateX(0)}
+.sb-head{padding:20px 16px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sb-close{background:#F3F4F6;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer}
+.sb-stats{display:flex;justify-content:space-between;padding:10px 16px;background:#FAFAFA;border-bottom:1px solid var(--border)}
+.sb-lbl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.sb-val{font-size:18px;font-weight:900}
+.sb-tabs{display:flex;border-bottom:1px solid var(--border)}
+.sb-tab{flex:1;padding:9px;font-size:12px;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--B)}
+.sb-tab.act{color:var(--blue);border-bottom:2px solid var(--blue)}
+.sb-list{flex:1;overflow-y:auto;padding:10px 12px;-webkit-overflow-scrolling:touch}
+.sb-row{background:#FAFAFA;border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+
+/* STANDINGS */
+.std-team{background:#FAFAFA;border-radius:12px;padding:12px;margin-bottom:8px}
+.std-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.std-ptag{display:inline-block;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:600;margin:2px}
+
+/* PURSE STRIP */
+.purse-strip{width:100%;background:#F7F6F3;border-radius:12px;padding:10px 14px;margin-top:14px}
+.purse-strip-ttl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:7px}
+.purse-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #EBEBEB;font-size:13px}
+.purse-row:last-child{border-bottom:none}
+
+/* LANDING */
+#sc-land{background:#0C0C0C;align-items:center;justify-content:flex-end;padding-bottom:52px}
+.l-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.l-ring{position:absolute;border-radius:50%;border:1px solid #1A1A1A}
+.l-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:0 24px;width:100%}
+.l-badge{font-size:11px;font-weight:700;letter-spacing:3px;color:#F59E0B;margin-bottom:16px}
+.l-title{font-family:var(--F);font-size:min(22vw,110px);color:#fff;line-height:.84;text-align:center;margin-bottom:14px}
+.l-title b{color:#F59E0B;font-weight:400}
+.l-sub{color:#444;font-size:14px;text-align:center;line-height:1.7;margin-bottom:36px}
+.l-btns{width:100%;max-width:340px}
+.btn{display:block;width:100%;padding:17px;border:none;border-radius:var(--r);font-family:var(--B);font-size:16px;font-weight:700;cursor:pointer;transition:transform .12s,opacity .12s;text-align:center}
+.btn:active{transform:scale(.96);opacity:.88}
+.btn-gold{background:#F59E0B;color:#111;margin-bottom:10px}
+.btn-ghost{background:transparent;color:#fff;border:1.5px solid #222;margin-bottom:10px}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.l-note{color:#333;font-size:12px;text-align:center;margin-top:16px;line-height:1.9}
+.btn-back{position:absolute;top:16px;left:16px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;font-family:var(--B)}
+
+/* CARD */
+.card{background:var(--white);border-radius:24px;padding:28px 22px;width:100%;max-width:400px;text-align:center;box-shadow:0 2px 28px rgba(0,0,0,.06);position:relative}
+.c-ico{font-size:44px;margin-bottom:10px}
+.c-ttl{font-size:22px;font-weight:900;margin-bottom:6px}
+.c-sub{color:var(--muted);font-size:14px;margin-bottom:22px;line-height:1.6}
+.inp{width:100%;padding:15px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:16px;font-family:var(--B);outline:none;margin-bottom:12px;transition:border-color .2s;background:var(--white)}
+.inp:focus{border-color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px}
+.chip{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.wait-list{width:100%;max-width:400px;margin-top:12px}
+.w-row{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:10px;padding:10px 14px;margin-bottom:6px;font-size:14px}
+.wdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* LOBBY */
+#sc-lobby{padding:24px 16px;align-items:center}
+.lob-card{background:var(--white);border-radius:20px;padding:22px;width:100%;max-width:480px}
+.lob-ttl{font-family:var(--F);font-size:30px;margin-bottom:4px}
+.lob-sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+.lob-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:10px;margin-bottom:7px}
+.btn-start{background:var(--blue);color:#fff;font-size:18px;padding:18px;border-radius:var(--r);border:none;width:100%;font-family:var(--B);font-weight:700;cursor:pointer;margin-top:14px}
+.btn-danger{background:#FEE2E2;color:var(--red);border:none;border-radius:var(--rs);padding:11px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;width:100%;font-family:var(--B)}
+
+/* OWNER BIDDING */
+#sc-owner{background:var(--white)}
+.ow-bar{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 18px 0;flex-shrink:0;gap:8px}
+.ow-bnum{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.ow-blbl{font-size:12px;color:var(--muted);margin-top:1px}
+.top-btn{border:none;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--B)}
+.ow-body{display:flex;flex-direction:column;align-items:center;padding:0 18px 20px;flex:1}
+.p-pill{background:#F3F4F6;border-radius:20px;padding:5px 16px;font-size:12px;color:var(--muted);font-weight:700;margin:18px 0 14px}
+.cat-banner{background:#111;color:#F59E0B;font-family:var(--F);font-size:13px;letter-spacing:2px;padding:5px 16px;border-radius:20px;margin-bottom:12px}
+.p-name{font-family:var(--F);font-size:clamp(32px,9vw,54px);color:var(--text);text-align:center;line-height:.95;letter-spacing:1px;word-break:break-word}
+.p-meta{font-size:14px;color:var(--muted);margin-top:8px;text-align:center}
+.p-rbadge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:6px}
+.base-row{text-align:center;margin-top:16px}
+.base-lbl{font-size:13px;font-weight:700}
+.base-val{font-size:15px;color:var(--muted);margin-top:2px}
+.divider{width:100%;height:1px;background:#F0F0F0;margin:16px 0}
+.bid-big{font-family:var(--F);font-size:clamp(54px,15vw,82px);color:var(--text);text-align:center;line-height:1;letter-spacing:1px;transition:transform .15s}
+.bid-big.pop{transform:scale(1.08)}
+.bid-lbl{font-size:13px;color:var(--muted);text-align:center;margin-top:4px}
+.ldr{display:inline-block;border-radius:24px;padding:6px 18px;font-size:13px;font-weight:700;margin-top:10px}
+.ldr-me{background:#DCFCE7;color:var(--green)}
+.ldr-ot{background:#EFF6FF;color:var(--blue)}
+.ldr-no{background:#F3F4F6;color:var(--muted)}
+.t-wrap{width:100%;margin-top:16px}
+.t-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.t-lbl{font-size:12px;color:var(--faint);font-weight:700;letter-spacing:.5px}
+.t-num{font-size:15px;font-weight:900}
+.t-track{height:5px;background:#F0F0F0;border-radius:3px;overflow:hidden}
+.t-fill{height:100%;border-radius:3px;transition:width .95s linear,background .3s}
+.bid-btn{width:100%;padding:20px;border-radius:20px;border:none;font-family:var(--F);font-size:26px;letter-spacing:1px;cursor:pointer;margin-top:16px;transition:transform .12s,box-shadow .2s}
+.bid-btn:active:not(:disabled){transform:scale(.96)}
+.bb-on{background:var(--blue);color:#fff;box-shadow:0 8px 28px rgba(29,107,243,.32)}
+.bb-win{background:#DCFCE7;color:var(--green);cursor:not-allowed}
+.bb-off{background:#F0F0F0;color:var(--faint);cursor:not-allowed}
+.bid-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+.block-reason{font-size:12px;color:var(--red);text-align:center;margin-top:4px;font-weight:600;min-height:14px}
+
+/* AUCTIONEER */
+#sc-auc{background:#0D0D0D;padding-bottom:28px}
+.a-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 0}
+.a-ttl{font-family:var(--F);font-size:20px;color:#fff;letter-spacing:1px}
+.a-prog{padding:10px 16px 0}
+.a-prog-bg{height:3px;background:#1A1A1A;border-radius:2px}
+.a-prog-fill{height:100%;background:#F59E0B;border-radius:2px;transition:width .5s}
+.a-body{padding:10px 16px 0}
+.a-card{background:#1A1A1A;border-radius:16px;padding:16px;margin-bottom:8px}
+.a-pname{font-family:var(--F);font-size:clamp(24px,7vw,38px);color:#fff;line-height:1}
+.a-pmeta{color:#555;font-size:13px;margin-top:4px}
+.a-cat-tag{display:inline-block;background:#F59E0B22;color:#F59E0B;border:1px solid #F59E0B44;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;letter-spacing:1px;margin-top:8px}
+.a-base{background:#111;border-radius:8px;padding:7px 12px;display:inline-block;margin-top:8px}
+.a-base-lbl{color:#444;font-size:10px;font-weight:700}
+.a-base-val{color:#F59E0B;font-weight:900;font-size:17px}
+.a-bid-card{background:#1A1A1A;border-radius:16px;padding:16px;margin-bottom:8px}
+.a-bid-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+.a-tnum{font-family:var(--F);font-size:52px;line-height:1}
+.a-tbar-bg{height:4px;width:70px;background:#111;border-radius:2px;margin-top:6px}
+.a-tbar-fill{height:100%;border-radius:2px;transition:width .95s linear,background .3s}
+.a-tslbl{color:#444;font-size:10px;font-weight:700;letter-spacing:1px;margin-top:4px}
+.a-bid-num{font-family:var(--F);font-size:clamp(28px,8vw,42px);color:#fff;line-height:1;text-align:right}
+.a-bid-lbl{color:#444;font-size:10px;font-weight:700;letter-spacing:.5px;text-align:right}
+.a-leader{font-size:14px;font-weight:700;margin-top:4px;text-align:right}
+.a-btns{display:flex;gap:10px;margin-bottom:8px}
+.btn-sell{flex:1;padding:14px;border-radius:12px;border:none;background:#16A34A;color:#fff;font-family:var(--F);font-size:20px;letter-spacing:1px;cursor:pointer}
+.btn-sell:disabled{background:#1C2B1C;color:#2A4028;cursor:not-allowed}
+.btn-unsold{flex:1;padding:14px;border-radius:12px;border:none;background:#1F2937;color:#4B5563;font-family:var(--F);font-size:20px;letter-spacing:1px;cursor:pointer}
+.btn-end{width:100%;padding:12px;border-radius:12px;border:none;background:#7F1D1D;color:#FCA5A5;font-family:var(--B);font-size:13px;font-weight:700;cursor:pointer}
+.a-teams-card{background:#1A1A1A;border-radius:16px;padding:14px;margin-bottom:8px}
+.a-slbl{font-size:10px;color:#444;font-weight:700;letter-spacing:1.5px;margin-bottom:8px}
+.a-trow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #111}
+.a-trow:last-child{border-bottom:none}
+.a-sold-card{background:#1A1A1A;border-radius:16px;padding:14px;margin-bottom:8px;max-height:200px;overflow-y:auto}
+.a-sold-item{padding:5px 0;border-bottom:1px solid #111}
+.a-sold-item:last-child{border-bottom:none}
+
+/* CAPTAIN SELECTION */
+#sc-captain{background:var(--bg)}
+.cap-header{background:var(--white);padding:18px;border-bottom:1px solid var(--border);text-align:center;flex-shrink:0}
+.cap-timer{font-family:var(--F);font-size:36px;color:var(--red);letter-spacing:2px}
+.cap-timer.ok{color:var(--green)}
+.cap-body{padding:16px;overflow-y:auto}
+.cap-player{background:var(--white);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:2px solid transparent;cursor:pointer;transition:border-color .2s}
+.cap-player.is-cap{border-color:#F59E0B;background:#FFFBEB}
+.cap-player.is-vc{border-color:var(--blue);background:#EFF6FF}
+.cap-badge{font-family:var(--F);font-size:14px;letter-spacing:1px;padding:3px 10px;border-radius:10px}
+.cap-badge.c{background:#F59E0B;color:#111}
+.cap-badge.vc{background:var(--blue);color:#fff}
+.cap-lock-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--green);color:#fff;font-family:var(--F);font-size:24px;letter-spacing:1px;cursor:pointer;margin-top:14px}
+.cap-locked-banner{background:#DCFCE7;border:1px solid #86EFAC;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px}
+
+/* SEASON / LEADERBOARD */
+#sc-season{background:var(--bg)}
+.season-hdr{background:#0D0D0D;padding:16px;flex-shrink:0}
+.season-ttl{font-family:var(--F);font-size:24px;color:#fff;letter-spacing:1px}
+.season-body{padding:14px;overflow-y:auto}
+.ldb-card{background:var(--white);border-radius:16px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.ldb-rank{font-family:var(--F);font-size:28px;color:var(--muted);width:36px;text-align:center;flex-shrink:0}
+.ldb-rank.gold{color:#F59E0B}
+.ldb-rank.silver{color:#94A3B8}
+.ldb-rank.bronze{color:#CD7C2F}
+.ldb-pts{font-family:var(--F);font-size:22px;color:var(--blue);text-align:right;flex-shrink:0}
+.match-card{background:var(--white);border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.match-date{font-size:11px;color:var(--muted);font-weight:700}
+.match-teams{font-weight:700;font-size:14px}
+.match-status-done{background:#DCFCE7;color:var(--green);border-radius:10px;padding:3px 10px;font-size:11px;font-weight:700}
+.match-status-up{background:#F3F4F6;color:var(--muted);border-radius:10px;padding:3px 10px;font-size:11px;font-weight:700}
+
+/* ADMIN STATS ENTRY */
+#sc-admin{background:var(--bg)}
+.admin-hdr{background:#0D0D0D;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.admin-ttl{font-family:var(--F);font-size:20px;color:#fff;letter-spacing:1px}
+.admin-body{padding:14px;overflow-y:auto}
+.player-stat-card{background:var(--white);border-radius:14px;padding:14px;margin-bottom:10px}
+.stat-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.stat-field{flex:1;min-width:70px}
+.stat-field label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:4px}
+.stat-inp{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:var(--B);outline:none;text-align:center}
+.stat-inp:focus{border-color:var(--blue)}
+.played-toggle{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.toggle-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--B);background:var(--white);color:var(--muted)}
+.toggle-btn.act{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* RESULTS / PODIUM */
+#sc-results{background:var(--bg);padding:20px 16px 60px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:20px 0 28px;height:140px}
+.podium-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.podium-block{width:80px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;font-family:var(--F);font-size:20px;color:#fff;padding-top:12px}
+.podium-name{font-size:11px;font-weight:700;text-align:center;margin-top:4px;max-width:80px}
+.podium-pts{font-size:10px;color:var(--muted);text-align:center}
+
+/* PRINT */
+@media print{
+  body{overflow:visible!important}
+  .sc{position:static!important;display:none!important}
+  #print-area{display:block!important}
+  #toast,#sb-ov,#sidebar,#sold-popup,#unsold-popup{display:none!important}
+}
+#print-area{display:none;padding:24px;font-family:var(--B)}
+.pr-ttl{font-family:var(--F);font-size:38px;color:#111;margin-bottom:4px}
+.pr-sub{color:#888;font-size:14px;margin-bottom:16px}
+.pr-stat{display:inline-block;background:#F3F4F6;border-radius:8px;padding:7px 12px;margin-right:8px;margin-bottom:14px;font-size:13px;font-weight:700}
+.pr-sec-ttl{font-family:var(--F);font-size:18px;letter-spacing:1px;margin:14px 0 6px;padding-bottom:3px;border-bottom:2px solid #111}
+.pr-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EEE;font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- SOLD POPUP -->
+<div id="sold-popup">
+  <div class="sold-box">
+    <div class="sold-hammer">🔨</div>
+    <div class="sold-label">SOLD!</div>
+    <div class="sold-player" id="sp-name">Player</div>
+    <div class="sold-to">Bought by <span id="sp-to">Team</span></div>
+    <div class="sold-price" id="sp-price">₹0 Cr</div>
+  </div>
+</div>
+
+<!-- UNSOLD POPUP -->
+<div id="unsold-popup">
+  <div class="unsold-box">
+    <div style="font-size:44px;margin-bottom:10px">❌</div>
+    <div style="font-family:var(--F);font-size:34px;color:#6B7280;letter-spacing:2px;margin-bottom:8px">UNSOLD</div>
+    <div style="font-family:var(--F);font-size:22px;color:#9CA3AF" id="up-name">Player</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sb-ov" onclick="closeSb()"></div>
+<div id="sidebar">
+  <div class="sb-head">
+    <div>
+      <div style="font-size:18px;font-weight:900" id="sb-ttl">My Team</div>
+      <div id="sb-name-lbl" style="font-size:13px;font-weight:700;margin-top:2px"></div>
+    </div>
+    <button class="sb-close" onclick="closeSb()">✕</button>
+  </div>
+  <div class="sb-stats">
+    <div><div class="sb-lbl">PURSE LEFT</div><div class="sb-val" id="sb-budget">—</div></div>
+    <div style="text-align:right"><div class="sb-lbl">PLAYERS</div><div class="sb-val" id="sb-count">0/12</div></div>
+  </div>
+  <div class="sb-tabs">
+    <button class="sb-tab act" id="tab-sq" onclick="switchTab('squad')">My Squad</button>
+    <button class="sb-tab" id="tab-st" onclick="switchTab('standings')">Standings</button>
+  </div>
+  <div class="sb-list" id="sb-list"></div>
+</div>
+
+<!-- PRINT -->
+<div id="print-area">
+  <div class="pr-ttl" id="pr-ttl">My Squad</div>
+  <div class="pr-sub" id="pr-sub">IPL Fantasy League 2026</div>
+  <div id="pr-stats"></div>
+  <div id="pr-players"></div>
+</div>
+
+<!-- ══ LANDING ══ -->
+<div id="sc-land" class="sc on">
+  <div class="l-bg">
+    <div class="l-ring" style="width:600px;height:600px"></div>
+    <div class="l-ring" style="width:420px;height:420px"></div>
+    <div class="l-ring" style="width:260px;height:260px"></div>
+  </div>
+  <div class="l-wrap">
+    <div class="l-badge">🏏 IPL 2026 · FANTASY LEAGUE · <span style="color:#fff;opacity:.5">v3</span></div>
+    <div class="l-title">IPL<br><b>FANTASY</b><br>ARENA</div>
+    <div class="l-sub">Auction · Captain Selection · Season Points<br>Share one link · Everyone plays on their phone</div>
+
+    <!-- Active game status banner — shown when a game exists -->
+    <div id="land-status" style="display:none;width:100%;max-width:340px;margin-bottom:18px">
+      <div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:14px;padding:14px 16px">
+        <div style="font-size:10px;color:#F59E0B;font-weight:700;letter-spacing:1.5px;margin-bottom:6px">ACTIVE GAME FOUND</div>
+        <div style="font-size:14px;color:#fff;font-weight:700" id="land-status-txt">Auction in progress</div>
+        <div style="font-size:12px;color:#555;margin-top:3px" id="land-status-sub">Tap Continue to rejoin</div>
+      </div>
+    </div>
+
+    <div class="l-btns">
+      <!-- Continue button — only shown when active game exists -->
+      <button class="btn" id="btn-continue" style="display:none;background:#22C55E;color:#fff;margin-bottom:10px;font-size:17px" onclick="continueGame()">▶ &nbsp;Continue Game</button>
+      <button class="btn btn-gold" onclick="show('sc-auc-s')">🎙️ &nbsp;Auctioneer Login</button>
+      <button class="btn btn-ghost" onclick="ownerEntry()">🏆 &nbsp;I'm a Team Owner</button>
+      <button class="btn" style="background:#1A1A1A;color:#888;font-size:14px;padding:13px;margin-top:2px" onclick="show('sc-season')">📊 Season Leaderboard</button>
+    </div>
+
+    <!-- Delete / New Auction — always visible, prominent -->
+    <div style="width:100%;max-width:340px;margin-top:16px">
+      <button id="btn-new-auction" onclick="startFreshAuction()" style="width:100%;padding:14px;background:transparent;border:1.5px solid #DC2626;border-radius:14px;color:#DC2626;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:none">
+        🗑️ &nbsp;Delete Old Data &amp; Start New Auction
+      </button>
+    </div>
+
+    <div class="l-note">Share this URL with all owners · No app download needed</div>
+  </div>
+</div>
+
+<!-- ══ AUCTIONEER LOGIN ══ -->
+<div id="sc-auc-s" class="sc" style="background:#0C0C0C;align-items:center;justify-content:center;padding:24px">
+  <button class="btn-back" style="color:#444" onclick="show('sc-land')">← Back</button>
+  <div class="card" style="background:#1A1A1A">
+    <div class="c-ico">🎙️</div>
+    <div class="c-ttl" style="color:#fff">Auctioneer Login</div>
+    <div class="c-sub" style="color:#555">Restricted access</div>
+    <input id="auc-user" class="inp" style="background:#111;color:#fff;border-color:#2A2A2A" placeholder="Username" autocomplete="off" autocorrect="off" spellcheck="false">
+    <input id="auc-pass" class="inp" style="background:#111;color:#fff;border-color:#2A2A2A" placeholder="Password" type="password">
+    <button class="btn btn-gold" style="font-size:16px;padding:16px" onclick="loginAuc()">Login →</button>
+  </div>
+</div>
+
+<!-- ══ OWNER SETUP ══ -->
+<div id="sc-setup" class="sc" style="align-items:center;justify-content:center;padding:24px">
+  <button class="btn-back" onclick="show('sc-land')">← Back</button>
+  <div class="card">
+    <div class="c-ico">🏆</div>
+    <div class="c-ttl">Join as Owner</div>
+    <div class="c-sub">Enter your team name — no account needed</div>
+    <input id="owner-inp" class="inp" placeholder="e.g. Mumbai Indians" maxlength="22" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="taken-chips" class="chips"></div>
+    <button class="btn btn-blue" style="padding:16px;font-size:16px" onclick="joinOwner()">Join Auction →</button>
+  </div>
+</div>
+
+<!-- ══ LOBBY ══ -->
+<div id="sc-lobby" class="sc" style="padding:24px 16px;align-items:center">
+  <div class="lob-card">
+    <div class="lob-ttl">AUCTION ROOM</div>
+    <div class="lob-sub" id="lob-sub">Waiting for owners…</div>
+    <div id="lob-teams"></div>
+    <button class="btn-start" onclick="startAuction()">🚀 &nbsp;START AUCTION</button>
+    <button class="btn-danger" onclick="doReset()">🔄 Reset Everything</button>
+  </div>
+</div>
+
+<!-- ══ WAITING ══ -->
+<div id="sc-wait" class="sc" style="align-items:center;justify-content:center;padding:24px">
+  <div class="card">
+    <div class="c-ico">⏳</div>
+    <div class="c-ttl">You're In!</div>
+    <div class="c-sub" id="wait-sub">Waiting for auctioneer…</div>
+    <div id="wait-list" class="wait-list"></div>
+  </div>
+</div>
+
+<!-- ══ OWNER BIDDING ══ -->
+<div id="sc-owner" class="sc">
+  <div class="ow-bar">
+    <div>
+      <div class="ow-bnum" id="ow-budget">₹125.00 Cr</div>
+      <div class="ow-blbl">Purse Remaining</div>
+    </div>
+    <button class="top-btn" id="mt-btn" style="color:#fff" onclick="openSb()">My Team</button>
+  </div>
+  <div class="ow-body">
+    <div class="p-pill" id="p-pill">Player 1 of 128</div>
+    <div class="cat-banner" id="cat-banner">BATSMEN</div>
+    <div class="p-name" id="p-name">PLAYER</div>
+    <div class="p-meta" id="p-meta"></div>
+    <div><span class="p-rbadge" id="p-rbadge">Batsman</span></div>
+    <div class="base-row">
+      <div class="base-lbl">Base Price</div>
+      <div class="base-val" id="p-base">₹2.00 Cr</div>
+    </div>
+    <div class="divider"></div>
+    <div class="bid-big" id="bid-big">2.00 Cr</div>
+    <div class="bid-lbl">Current Bid</div>
+    <div class="ldr ldr-no" id="ldr">No bids yet</div>
+    <div class="t-wrap">
+      <div class="t-top">
+        <span class="t-lbl">TIME LEFT</span>
+        <span class="t-num" id="t-num" style="color:var(--text)">30s</span>
+      </div>
+      <div class="t-track"><div class="t-fill" id="t-fill" style="width:100%;background:var(--blue)"></div></div>
+    </div>
+    <button class="bid-btn bb-off" id="bid-btn" onclick="doBid()">BID</button>
+    <div class="bid-hint" id="bid-hint"></div>
+    <div class="block-reason" id="block-reason"></div>
+    <!-- Purse strip -->
+    <div class="purse-strip" id="purse-strip">
+      <div class="purse-strip-ttl">ALL TEAMS — REMAINING PURSE</div>
+      <div id="purse-rows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUCTIONEER LIVE ══ -->
+<div id="sc-auc" class="sc">
+  <div class="a-hdr">
+    <div class="a-ttl">🎙 AUCTIONEER</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="a-count" style="color:#444;font-size:12px"></span>
+      <button onclick="show('sc-admin-pick')" style="background:#1A1A1A;border:none;border-radius:8px;color:#F59E0B;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--B)">Stats</button>
+      <button onclick="doReset()" style="background:#1A1A1A;border:none;border-radius:8px;color:#EF4444;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--B)">Reset</button>
+    </div>
+  </div>
+  <div class="a-prog"><div class="a-prog-bg"><div class="a-prog-fill" id="a-prog" style="width:0"></div></div></div>
+  <div class="a-body">
+    <div class="a-card">
+      <div class="a-pname" id="a-pname">—</div>
+      <div class="a-pmeta" id="a-pmeta"></div>
+      <div id="a-cat-tag" class="a-cat-tag"></div>
+      <div class="a-base"><div class="a-base-lbl">BASE PRICE</div><div class="a-base-val" id="a-pbase">—</div></div>
+    </div>
+    <div class="a-bid-card">
+      <div class="a-bid-row">
+        <div>
+          <div class="a-tnum" id="a-tnum" style="color:#fff">30</div>
+          <div class="a-tbar-bg"><div class="a-tbar-fill" id="a-tbar" style="width:100%;background:var(--blue)"></div></div>
+          <div class="a-tslbl">SECONDS</div>
+        </div>
+        <div>
+          <div class="a-bid-lbl">CURRENT BID</div>
+          <div class="a-bid-num" id="a-bnum">—</div>
+          <div class="a-leader" id="a-leader" style="color:#444">No bids yet</div>
+        </div>
+      </div>
+      <div class="a-btns">
+        <button class="btn-sell" id="btn-sell" onclick="doSell()" disabled>✅ SOLD</button>
+        <button class="btn-unsold" onclick="doUnsold()">❌ UNSOLD</button>
+      </div>
+      <button class="btn-end" onclick="endEarly()">⏹ End Auction Early</button>
+    </div>
+    <div class="a-teams-card">
+      <div class="a-slbl">TEAMS & BUDGETS</div>
+      <div id="a-teams"></div>
+    </div>
+    <div class="a-sold-card" id="a-sold-wrap" style="display:none">
+      <div class="a-slbl">RECENT SALES</div>
+      <div id="a-sold"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CAPTAIN SELECTION ══ -->
+<div id="sc-captain" class="sc">
+  <div class="cap-header">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:4px">SELECT CAPTAIN & VICE CAPTAIN</div>
+    <div class="cap-timer ok" id="cap-timer">20:00</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px" id="cap-sub">Tap once for Captain (C) · Tap again for Vice Captain (VC)</div>
+    <div id="cap-locked-banner" style="display:none" class="cap-locked-banner">
+      <div style="font-size:16px;font-weight:900;color:var(--green)">✅ Locked In!</div>
+      <div style="font-size:13px;color:var(--green);margin-top:4px" id="cap-locked-msg"></div>
+    </div>
+  </div>
+  <div class="cap-body" id="cap-body"></div>
+</div>
+
+<!-- ══ SEASON / LEADERBOARD ══ -->
+<div id="sc-season" class="sc">
+  <div class="season-hdr">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="season-ttl">🏆 SEASON 2026</div>
+      <button onclick="show('sc-land')" style="background:#1A1A1A;border:none;color:#555;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--B)">← Home</button>
+    </div>
+  </div>
+  <div style="display:flex;border-bottom:1px solid #1A1A1A;background:#0D0D0D">
+    <button class="sb-tab act" id="stab-ldb" onclick="switchSeasonTab('ldb')" style="color:#F59E0B;border-bottom:2px solid #F59E0B">Leaderboard</button>
+    <button class="sb-tab" id="stab-matches" onclick="switchSeasonTab('matches')" style="color:#555">Matches</button>
+    <button class="sb-tab" id="stab-myteam" onclick="switchSeasonTab('mypts')" style="color:#555">My Points</button>
+  </div>
+  <div class="season-body" id="season-body"></div>
+</div>
+
+<!-- ══ ADMIN: PICK MATCH ══ -->
+<div id="sc-admin-pick" class="sc">
+  <div class="admin-hdr">
+    <div class="admin-ttl">📊 ENTER MATCH STATS</div>
+    <button onclick="show('sc-auc')" style="background:#1A1A1A;border:none;color:#555;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--B)">← Back</button>
+  </div>
+  <div class="admin-body">
+    <div style="color:#888;font-size:14px;margin-bottom:14px">Select the completed match to enter player stats:</div>
+    <div id="admin-match-list"></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN: ENTER STATS ══ -->
+<div id="sc-admin" class="sc">
+  <div class="admin-hdr">
+    <div>
+      <div class="admin-ttl" id="admin-match-ttl">Match Stats</div>
+      <div style="color:#555;font-size:12px" id="admin-match-sub"></div>
+    </div>
+    <button onclick="show('sc-admin-pick')" style="background:#1A1A1A;border:none;color:#555;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--B)">← Back</button>
+  </div>
+  <div class="admin-body">
+    <div style="color:#888;font-size:13px;margin-bottom:12px">Enter stats for your auction players who played in this match. Leave stats at 0 if a player didn't bat/bowl/field.</div>
+    <div id="admin-players-list"></div>
+    <button onclick="submitStats()" style="width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);font-family:var(--F);font-size:22px;letter-spacing:1px;cursor:pointer;margin-top:8px">SAVE MATCH STATS</button>
+  </div>
+</div>
+
+<!-- ══ RESULTS / PODIUM ══ -->
+<div id="sc-results" class="sc">
+  <div style="text-align:center;padding:20px 0 10px;background:#0C0C0C">
+    <div style="font-family:var(--F);font-size:48px;color:#F59E0B;letter-spacing:2px">SEASON OVER</div>
+    <div style="color:#444;font-size:14px;margin-top:4px" id="res-sub"></div>
+  </div>
+  <div id="res-podium" class="podium" style="padding:0 16px"></div>
+  <div style="padding:16px" id="res-list"></div>
+  <div style="padding:0 16px 40px">
+    <button class="btn btn-blue" onclick="downloadPDF()" style="padding:14px;font-size:15px;border-radius:var(--r);margin-bottom:10px">📄 Download My Squad PDF</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const SB_URL="https://jbdrjxptxtfeqphoawhe.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiZHJqeHB0eHRmZXFwaG9hd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NzIwMjAsImV4cCI6MjA5MDU0ODAyMH0.SiZ1syoTcS9p2x4HyZY3VDfjpuZZActcPZP1dEkmaHA";
+const AUC_USER="Sahil Tech", AUC_PASS="Sahil234138";
+const MAX_PLAYERS=12, TIMER=30, BUDGET=12500;
+const CAP_MINS=20; // captain selection window in minutes
+const MIN_RULES={Bowler:2,"All-Rounder":1,"Wicket-Keeper":1};
+const CAT_ORDER=["Batsman","Pace Bowler","Spin Bowler","Wicket-Keeper","All-Rounder"];
+
+// ══════════════════════════════════════════
+// MATCH SCHEDULE
+// ══════════════════════════════════════════
+const MATCHES=[
+  {id:1,num:1,date:"2026-03-22",t1:"RCB",t2:"SRH",venue:"Bengaluru"},
+  {id:2,num:2,date:"2026-03-23",t1:"CSK",t2:"MI",venue:"Chennai"},
+  {id:3,num:3,date:"2026-03-24",t1:"DC",t2:"GT",venue:"Delhi"},
+  {id:4,num:4,date:"2026-03-25",t1:"KKR",t2:"PBKS",venue:"Kolkata"},
+  {id:5,num:5,date:"2026-03-26",t1:"RR",t2:"LSG",venue:"Jaipur"},
+  {id:6,num:6,date:"2026-03-27",t1:"SRH",t2:"CSK",venue:"Hyderabad"},
+  {id:7,num:7,date:"2026-03-28",t1:"MI",t2:"RCB",venue:"Mumbai"},
+  {id:8,num:8,date:"2026-03-29",t1:"GT",t2:"KKR",venue:"Ahmedabad"},
+  {id:9,num:9,date:"2026-03-29",t1:"PBKS",t2:"DC",venue:"Dharamsala"},
+  {id:10,num:10,date:"2026-03-30",t1:"LSG",t2:"RCB",venue:"Lucknow"},
+  {id:11,num:11,date:"2026-03-31",t1:"CSK",t2:"RR",venue:"Chennai"},
+  {id:12,num:12,date:"2026-04-01",t1:"MI",t2:"SRH",venue:"Mumbai"},
+  {id:13,num:13,date:"2026-04-02",t1:"KKR",t2:"GT",venue:"Kolkata"},
+  {id:14,num:14,date:"2026-04-03",t1:"DC",t2:"LSG",venue:"Delhi"},
+  {id:15,num:15,date:"2026-04-04",t1:"RCB",t2:"PBKS",venue:"Bengaluru"},
+  {id:16,num:16,date:"2026-04-05",t1:"RR",t2:"MI",venue:"Jaipur"},
+  {id:17,num:17,date:"2026-04-05",t1:"SRH",t2:"KKR",venue:"Hyderabad"},
+  {id:18,num:18,date:"2026-04-06",t1:"GT",t2:"CSK",venue:"Ahmedabad"},
+  {id:19,num:19,date:"2026-04-07",t1:"LSG",t2:"PBKS",venue:"Lucknow"},
+  {id:20,num:20,date:"2026-04-08",t1:"DC",t2:"RCB",venue:"Delhi"},
+  {id:21,num:21,date:"2026-04-09",t1:"MI",t2:"KKR",venue:"Mumbai"},
+  {id:22,num:22,date:"2026-04-10",t1:"RR",t2:"SRH",venue:"Jaipur"},
+  {id:23,num:23,date:"2026-04-11",t1:"CSK",t2:"DC",venue:"Chennai"},
+  {id:24,num:24,date:"2026-04-11",t1:"PBKS",t2:"GT",venue:"Dharamsala"},
+  {id:25,num:25,date:"2026-04-12",t1:"LSG",t2:"MI",venue:"Lucknow"},
+  {id:26,num:26,date:"2026-04-13",t1:"KKR",t2:"RCB",venue:"Kolkata"},
+  {id:27,num:27,date:"2026-04-14",t1:"SRH",t2:"RR",venue:"Hyderabad"},
+  {id:28,num:28,date:"2026-04-15",t1:"GT",t2:"DC",venue:"Ahmedabad"},
+  {id:29,num:29,date:"2026-04-16",t1:"PBKS",t2:"CSK",venue:"Dharamsala"},
+  {id:30,num:30,date:"2026-04-17",t1:"MI",t2:"RR",venue:"Mumbai"},
+  {id:31,num:31,date:"2026-04-18",t1:"RCB",t2:"LSG",venue:"Bengaluru"},
+  {id:32,num:32,date:"2026-04-18",t1:"KKR",t2:"SRH",venue:"Kolkata"},
+  {id:33,num:33,date:"2026-04-19",t1:"GT",t2:"RR",venue:"Ahmedabad"},
+  {id:34,num:34,date:"2026-04-20",t1:"DC",t2:"MI",venue:"Delhi"},
+  {id:35,num:35,date:"2026-04-21",t1:"CSK",t2:"KKR",venue:"Chennai"},
+  {id:36,num:36,date:"2026-04-22",t1:"PBKS",t2:"RR",venue:"Dharamsala"},
+  {id:37,num:37,date:"2026-04-23",t1:"LSG",t2:"SRH",venue:"Lucknow"},
+  {id:38,num:38,date:"2026-04-24",t1:"RCB",t2:"GT",venue:"Bengaluru"},
+  {id:39,num:39,date:"2026-04-25",t1:"MI",t2:"PBKS",venue:"Mumbai"},
+  {id:40,num:40,date:"2026-04-26",t1:"KKR",t2:"DC",venue:"Kolkata"},
+  {id:41,num:41,date:"2026-04-26",t1:"RR",t2:"CSK",venue:"Jaipur"},
+  {id:42,num:42,date:"2026-04-27",t1:"SRH",t2:"GT",venue:"Hyderabad"},
+  {id:43,num:43,date:"2026-04-28",t1:"LSG",t2:"KKR",venue:"Lucknow"},
+  {id:44,num:44,date:"2026-04-29",t1:"DC",t2:"RR",venue:"Delhi"},
+  {id:45,num:45,date:"2026-04-30",t1:"PBKS",t2:"SRH",venue:"Dharamsala"},
+  {id:46,num:46,date:"2026-05-01",t1:"RCB",t2:"MI",venue:"Bengaluru"},
+  {id:47,num:47,date:"2026-05-02",t1:"CSK",t2:"LSG",venue:"Chennai"},
+  {id:48,num:48,date:"2026-05-02",t1:"GT",t2:"PBKS",venue:"Ahmedabad"},
+  {id:49,num:49,date:"2026-05-03",t1:"KKR",t2:"RR",venue:"Kolkata"},
+  {id:50,num:50,date:"2026-05-04",t1:"MI",t2:"DC",venue:"Mumbai"},
+  {id:51,num:51,date:"2026-05-05",t1:"SRH",t2:"RCB",venue:"Hyderabad"},
+  {id:52,num:52,date:"2026-05-06",t1:"LSG",t2:"GT",venue:"Lucknow"},
+  {id:53,num:53,date:"2026-05-07",t1:"PBKS",t2:"KKR",venue:"Dharamsala"},
+  {id:54,num:54,date:"2026-05-08",t1:"RR",t2:"DC",venue:"Jaipur"},
+  {id:55,num:55,date:"2026-05-09",t1:"CSK",t2:"SRH",venue:"Chennai"},
+  {id:56,num:56,date:"2026-05-09",t1:"RCB",t2:"KKR",venue:"Bengaluru"},
+  {id:57,num:57,date:"2026-05-10",t1:"MI",t2:"GT",venue:"Mumbai"},
+  {id:58,num:58,date:"2026-05-11",t1:"DC",t2:"PBKS",venue:"Delhi"},
+  {id:59,num:59,date:"2026-05-12",t1:"LSG",t2:"RR",venue:"Lucknow"},
+  {id:60,num:60,date:"2026-05-13",t1:"SRH",t2:"MI",venue:"Hyderabad"},
+  {id:61,num:61,date:"2026-05-14",t1:"GT",t2:"RCB",venue:"Ahmedabad"},
+  {id:62,num:62,date:"2026-05-15",t1:"KKR",t2:"CSK",venue:"Kolkata"},
+  {id:63,num:63,date:"2026-05-16",t1:"PBKS",t2:"LSG",venue:"Dharamsala"},
+  {id:64,num:64,date:"2026-05-16",t1:"RR",t2:"GT",venue:"Jaipur"},
+  {id:65,num:65,date:"2026-05-17",t1:"DC",t2:"SRH",venue:"Delhi"},
+  {id:66,num:66,date:"2026-05-18",t1:"MI",t2:"CSK",venue:"Mumbai"},
+  {id:67,num:67,date:"2026-05-19",t1:"RCB",t2:"RR",venue:"Bengaluru"},
+  {id:68,num:68,date:"2026-05-20",t1:"KKR",t2:"LSG",venue:"Kolkata"},
+  {id:69,num:69,date:"2026-05-21",t1:"Qualifier 1",t2:"TBD",venue:"TBD"},
+  {id:70,num:70,date:"2026-05-22",t1:"Eliminator",t2:"TBD",venue:"TBD"},
+  {id:71,num:71,date:"2026-05-24",t1:"Qualifier 2",t2:"TBD",venue:"TBD"},
+  {id:72,num:72,date:"2026-05-26",t1:"Final",t2:"TBD",venue:"TBD"},
+];
+
+// ══════════════════════════════════════════
+// PLAYERS
+// ══════════════════════════════════════════
+const PLAYERS=[
+  {id:1,name:"Virat Kohli",role:"Batsman",cat:"Batsman",team:"RCB",country:"India",base:200},
+  {id:2,name:"Rajat Patidar",role:"Batsman",cat:"Batsman",team:"RCB",country:"India",base:100},
+  {id:3,name:"Devdutt Padikkal",role:"Batsman",cat:"Batsman",team:"RCB",country:"India",base:75},
+  {id:4,name:"Phil Salt",role:"Batsman",cat:"Batsman",team:"RCB",country:"England",base:150},
+  {id:5,name:"Jordan Cox",role:"Batsman",cat:"Batsman",team:"RCB",country:"England",base:50},
+  {id:6,name:"Rohit Sharma",role:"Batsman",cat:"Batsman",team:"MI",country:"India",base:200},
+  {id:7,name:"Suryakumar Yadav",role:"Batsman",cat:"Batsman",team:"MI",country:"India",base:200},
+  {id:8,name:"Tilak Varma",role:"Batsman",cat:"Batsman",team:"MI",country:"India",base:150},
+  {id:9,name:"Ryan Rickelton",role:"Batsman",cat:"Batsman",team:"MI",country:"South Africa",base:100},
+  {id:10,name:"Ruturaj Gaikwad",role:"Batsman",cat:"Batsman",team:"CSK",country:"India",base:150},
+  {id:11,name:"Sanju Samson",role:"Batsman",cat:"Batsman",team:"CSK",country:"India",base:150},
+  {id:12,name:"Dewald Brevis",role:"Batsman",cat:"Batsman",team:"CSK",country:"South Africa",base:75},
+  {id:13,name:"Ayush Mhatre",role:"Batsman",cat:"Batsman",team:"CSK",country:"India",base:50},
+  {id:14,name:"Nicholas Pooran",role:"Batsman",cat:"Batsman",team:"LSG",country:"West Indies",base:150},
+  {id:15,name:"Aiden Markram",role:"Batsman",cat:"Batsman",team:"LSG",country:"South Africa",base:100},
+  {id:16,name:"Josh Inglis",role:"Batsman",cat:"Batsman",team:"LSG",country:"Australia",base:75},
+  {id:17,name:"Shubman Gill",role:"Batsman",cat:"Batsman",team:"GT",country:"India",base:200},
+  {id:18,name:"Jos Buttler",role:"Batsman",cat:"Batsman",team:"GT",country:"England",base:200},
+  {id:19,name:"Sai Sudharsan",role:"Batsman",cat:"Batsman",team:"GT",country:"India",base:100},
+  {id:20,name:"Glenn Phillips",role:"Batsman",cat:"Batsman",team:"GT",country:"New Zealand",base:75},
+  {id:21,name:"Shahrukh Khan",role:"Batsman",cat:"Batsman",team:"GT",country:"India",base:75},
+  {id:22,name:"Shreyas Iyer",role:"Batsman",cat:"Batsman",team:"PBKS",country:"India",base:150},
+  {id:23,name:"Prabhsimran Singh",role:"Batsman",cat:"Batsman",team:"PBKS",country:"India",base:75},
+  {id:24,name:"Shashank Singh",role:"Batsman",cat:"Batsman",team:"PBKS",country:"India",base:75},
+  {id:25,name:"Nehal Wadhera",role:"Batsman",cat:"Batsman",team:"PBKS",country:"India",base:50},
+  {id:26,name:"Yashasvi Jaiswal",role:"Batsman",cat:"Batsman",team:"RR",country:"India",base:200},
+  {id:27,name:"Shimron Hetmyer",role:"Batsman",cat:"Batsman",team:"RR",country:"West Indies",base:100},
+  {id:28,name:"Vaibhav Suryavanshi",role:"Batsman",cat:"Batsman",team:"RR",country:"India",base:75},
+  {id:29,name:"KL Rahul",role:"Batsman",cat:"Batsman",team:"DC",country:"India",base:200},
+  {id:30,name:"Karun Nair",role:"Batsman",cat:"Batsman",team:"DC",country:"India",base:75},
+  {id:31,name:"David Miller",role:"Batsman",cat:"Batsman",team:"DC",country:"South Africa",base:150},
+  {id:32,name:"Pathum Nissanka",role:"Batsman",cat:"Batsman",team:"DC",country:"Sri Lanka",base:75},
+  {id:33,name:"Tristan Stubbs",role:"Batsman",cat:"Batsman",team:"DC",country:"South Africa",base:75},
+  {id:34,name:"Travis Head",role:"Batsman",cat:"Batsman",team:"SRH",country:"Australia",base:200},
+  {id:35,name:"Ajinkya Rahane",role:"Batsman",cat:"Batsman",team:"KKR",country:"India",base:75},
+  {id:36,name:"Rinku Singh",role:"Batsman",cat:"Batsman",team:"KKR",country:"India",base:100},
+  {id:37,name:"Angkrish Raghuvanshi",role:"Batsman",cat:"Batsman",team:"KKR",country:"India",base:50},
+  {id:38,name:"Rovman Powell",role:"Batsman",cat:"Batsman",team:"KKR",country:"West Indies",base:100},
+  {id:39,name:"Finn Allen",role:"Batsman",cat:"Batsman",team:"KKR",country:"New Zealand",base:75},
+  {id:40,name:"Jasprit Bumrah",role:"Bowler",cat:"Pace Bowler",team:"MI",country:"India",base:200},
+  {id:41,name:"Trent Boult",role:"Bowler",cat:"Pace Bowler",team:"MI",country:"New Zealand",base:150},
+  {id:42,name:"Deepak Chahar",role:"Bowler",cat:"Pace Bowler",team:"MI",country:"India",base:75},
+  {id:43,name:"Allah Ghazanfar",role:"Bowler",cat:"Pace Bowler",team:"MI",country:"Afghanistan",base:75},
+  {id:44,name:"Josh Hazlewood",role:"Bowler",cat:"Pace Bowler",team:"RCB",country:"Australia",base:150},
+  {id:45,name:"Bhuvneshwar Kumar",role:"Bowler",cat:"Pace Bowler",team:"RCB",country:"India",base:75},
+  {id:46,name:"Yash Dayal",role:"Bowler",cat:"Pace Bowler",team:"RCB",country:"India",base:50},
+  {id:47,name:"Khaleel Ahmed",role:"Bowler",cat:"Pace Bowler",team:"CSK",country:"India",base:75},
+  {id:48,name:"Anshul Kamboj",role:"Bowler",cat:"Pace Bowler",team:"CSK",country:"India",base:50},
+  {id:49,name:"Matt Henry",role:"Bowler",cat:"Pace Bowler",team:"CSK",country:"New Zealand",base:100},
+  {id:50,name:"Spencer Johnson",role:"Bowler",cat:"Pace Bowler",team:"CSK",country:"Australia",base:75},
+  {id:51,name:"Mohammad Shami",role:"Bowler",cat:"Pace Bowler",team:"LSG",country:"India",base:200},
+  {id:52,name:"Avesh Khan",role:"Bowler",cat:"Pace Bowler",team:"LSG",country:"India",base:75},
+  {id:53,name:"Anrich Nortje",role:"Bowler",cat:"Pace Bowler",team:"LSG",country:"South Africa",base:150},
+  {id:54,name:"Kagiso Rabada",role:"Bowler",cat:"Pace Bowler",team:"GT",country:"South Africa",base:200},
+  {id:55,name:"Mohammed Siraj",role:"Bowler",cat:"Pace Bowler",team:"GT",country:"India",base:150},
+  {id:56,name:"Prasidh Krishna",role:"Bowler",cat:"Pace Bowler",team:"GT",country:"India",base:100},
+  {id:57,name:"Arshdeep Singh",role:"Bowler",cat:"Pace Bowler",team:"PBKS",country:"India",base:150},
+  {id:58,name:"Lockie Ferguson",role:"Bowler",cat:"Pace Bowler",team:"PBKS",country:"New Zealand",base:100},
+  {id:59,name:"Yash Thakur",role:"Bowler",cat:"Pace Bowler",team:"PBKS",country:"India",base:50},
+  {id:60,name:"Jofra Archer",role:"Bowler",cat:"Pace Bowler",team:"RR",country:"England",base:200},
+  {id:61,name:"Tushar Deshpande",role:"Bowler",cat:"Pace Bowler",team:"RR",country:"India",base:75},
+  {id:62,name:"Kwena Maphaka",role:"Bowler",cat:"Pace Bowler",team:"RR",country:"South Africa",base:75},
+  {id:63,name:"Sandeep Sharma",role:"Bowler",cat:"Pace Bowler",team:"RR",country:"India",base:50},
+  {id:64,name:"Mitchell Starc",role:"Bowler",cat:"Pace Bowler",team:"DC",country:"Australia",base:200},
+  {id:65,name:"T. Natarajan",role:"Bowler",cat:"Pace Bowler",team:"DC",country:"India",base:75},
+  {id:66,name:"Kyle Jamieson",role:"Bowler",cat:"Pace Bowler",team:"DC",country:"New Zealand",base:100},
+  {id:67,name:"Mukesh Kumar",role:"Bowler",cat:"Pace Bowler",team:"DC",country:"India",base:50},
+  {id:68,name:"Pat Cummins",role:"Bowler",cat:"Pace Bowler",team:"SRH",country:"Australia",base:200},
+  {id:69,name:"Jaydev Unadkat",role:"Bowler",cat:"Pace Bowler",team:"SRH",country:"India",base:50},
+  {id:70,name:"Shivam Mavi",role:"Bowler",cat:"Pace Bowler",team:"SRH",country:"India",base:75},
+  {id:71,name:"Matheesha Pathirana",role:"Bowler",cat:"Pace Bowler",team:"KKR",country:"Sri Lanka",base:150},
+  {id:72,name:"Blessing Muzarabani",role:"Bowler",cat:"Pace Bowler",team:"KKR",country:"Zimbabwe",base:75},
+  {id:73,name:"Mayank Yadav",role:"Bowler",cat:"Pace Bowler",team:"LSG",country:"India",base:100},
+  {id:74,name:"Arjun Tendulkar",role:"Bowler",cat:"Pace Bowler",team:"LSG",country:"India",base:50},
+  {id:75,name:"Yuzvendra Chahal",role:"Bowler",cat:"Spin Bowler",team:"PBKS",country:"India",base:100},
+  {id:76,name:"Noor Ahmad",role:"Bowler",cat:"Spin Bowler",team:"CSK",country:"Afghanistan",base:100},
+  {id:77,name:"Varun Chakaravarthy",role:"Bowler",cat:"Spin Bowler",team:"KKR",country:"India",base:150},
+  {id:78,name:"Kuldeep Yadav",role:"Bowler",cat:"Spin Bowler",team:"DC",country:"India",base:150},
+  {id:79,name:"Ravi Bishnoi",role:"Bowler",cat:"Spin Bowler",team:"RR",country:"India",base:100},
+  {id:80,name:"Zeeshan Ansari",role:"Bowler",cat:"Spin Bowler",team:"SRH",country:"India",base:50},
+  {id:81,name:"Shreyas Gopal",role:"Bowler",cat:"Spin Bowler",team:"CSK",country:"India",base:50},
+  {id:82,name:"Rashid Khan",role:"All-Rounder",cat:"Spin Bowler",team:"GT",country:"Afghanistan",base:200},
+  {id:83,name:"MS Dhoni",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"CSK",country:"India",base:200},
+  {id:84,name:"Rishabh Pant",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"LSG",country:"India",base:200},
+  {id:85,name:"Quinton de Kock",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"MI",country:"South Africa",base:100},
+  {id:86,name:"Jitesh Sharma",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"RCB",country:"India",base:75},
+  {id:87,name:"Dhruv Jurel",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"RR",country:"India",base:75},
+  {id:88,name:"Ishan Kishan",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"SRH",country:"India",base:150},
+  {id:89,name:"Heinrich Klaasen",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"SRH",country:"South Africa",base:200},
+  {id:90,name:"Kumar Kushagra",role:"Wicket-Keeper",cat:"Wicket-Keeper",team:"GT",country:"India",base:50},
+  {id:91,name:"Hardik Pandya",role:"All-Rounder",cat:"All-Rounder",team:"MI",country:"India",base:200},
+  {id:92,name:"Mitchell Santner",role:"All-Rounder",cat:"All-Rounder",team:"MI",country:"New Zealand",base:100},
+  {id:93,name:"Will Jacks",role:"All-Rounder",cat:"All-Rounder",team:"MI",country:"England",base:100},
+  {id:94,name:"Shardul Thakur",role:"All-Rounder",cat:"All-Rounder",team:"MI",country:"India",base:75},
+  {id:95,name:"Krunal Pandya",role:"All-Rounder",cat:"All-Rounder",team:"RCB",country:"India",base:100},
+  {id:96,name:"Tim David",role:"All-Rounder",cat:"All-Rounder",team:"RCB",country:"Singapore",base:150},
+  {id:97,name:"Jacob Bethell",role:"All-Rounder",cat:"All-Rounder",team:"RCB",country:"England",base:75},
+  {id:98,name:"Venkatesh Iyer",role:"All-Rounder",cat:"All-Rounder",team:"RCB",country:"India",base:100},
+  {id:99,name:"Romario Shepherd",role:"All-Rounder",cat:"All-Rounder",team:"RCB",country:"West Indies",base:75},
+  {id:100,name:"Shivam Dube",role:"All-Rounder",cat:"All-Rounder",team:"CSK",country:"India",base:100},
+  {id:101,name:"Jamie Overton",role:"All-Rounder",cat:"All-Rounder",team:"CSK",country:"England",base:75},
+  {id:102,name:"Matthew Short",role:"All-Rounder",cat:"All-Rounder",team:"CSK",country:"Australia",base:75},
+  {id:103,name:"Mitchell Marsh",role:"All-Rounder",cat:"All-Rounder",team:"LSG",country:"Australia",base:150},
+  {id:104,name:"Wanindu Hasaranga",role:"All-Rounder",cat:"All-Rounder",team:"LSG",country:"Sri Lanka",base:100},
+  {id:105,name:"Abdul Samad",role:"All-Rounder",cat:"All-Rounder",team:"LSG",country:"India",base:75},
+  {id:106,name:"Ayush Badoni",role:"All-Rounder",cat:"All-Rounder",team:"LSG",country:"India",base:75},
+  {id:107,name:"Washington Sundar",role:"All-Rounder",cat:"All-Rounder",team:"GT",country:"India",base:100},
+  {id:108,name:"Jason Holder",role:"All-Rounder",cat:"All-Rounder",team:"GT",country:"West Indies",base:75},
+  {id:109,name:"Rahul Tewatia",role:"All-Rounder",cat:"All-Rounder",team:"GT",country:"India",base:75},
+  {id:110,name:"Marcus Stoinis",role:"All-Rounder",cat:"All-Rounder",team:"PBKS",country:"Australia",base:100},
+  {id:111,name:"Marco Jansen",role:"All-Rounder",cat:"All-Rounder",team:"PBKS",country:"South Africa",base:100},
+  {id:112,name:"Priyansh Arya",role:"All-Rounder",cat:"All-Rounder",team:"PBKS",country:"India",base:50},
+  {id:113,name:"Azmatullah Omarzai",role:"All-Rounder",cat:"All-Rounder",team:"PBKS",country:"Afghanistan",base:75},
+  {id:114,name:"Riyan Parag",role:"All-Rounder",cat:"All-Rounder",team:"RR",country:"India",base:100},
+  {id:115,name:"Ravindra Jadeja",role:"All-Rounder",cat:"All-Rounder",team:"RR",country:"India",base:200},
+  {id:116,name:"Axar Patel",role:"All-Rounder",cat:"All-Rounder",team:"DC",country:"India",base:150},
+  {id:117,name:"Nitish Rana",role:"All-Rounder",cat:"All-Rounder",team:"DC",country:"India",base:75},
+  {id:118,name:"Abhishek Sharma",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"India",base:100},
+  {id:119,name:"Nitish Kumar Reddy",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"India",base:100},
+  {id:120,name:"Liam Livingstone",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"England",base:150},
+  {id:121,name:"Harshal Patel",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"India",base:75},
+  {id:122,name:"Cameron Green",role:"All-Rounder",cat:"All-Rounder",team:"KKR",country:"Australia",base:200},
+  {id:123,name:"Sunil Narine",role:"All-Rounder",cat:"All-Rounder",team:"KKR",country:"West Indies",base:200},
+  {id:124,name:"Rachin Ravindra",role:"All-Rounder",cat:"All-Rounder",team:"KKR",country:"New Zealand",base:150},
+  {id:125,name:"Ramandeep Singh",role:"All-Rounder",cat:"All-Rounder",team:"KKR",country:"India",base:50},
+  {id:126,name:"Kamindu Mendis",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"Sri Lanka",base:75},
+  {id:127,name:"Brydon Carse",role:"All-Rounder",cat:"All-Rounder",team:"SRH",country:"England",base:75},
+  {id:128,name:"Ravichandran Ashwin",role:"All-Rounder",cat:"All-Rounder",team:"RR",country:"India",base:75},
+];
+
+// ══════════════════════════════════════════
+// SUPABASE HELPERS
+// ══════════════════════════════════════════
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+async function sbGet(table,query=''){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}${query}`,{headers:H});
+  return r.ok?await r.json():null;
+}
+async function sbUpsert(table,data){
+  await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(data)});
+}
+async function sbDelete(table,query){
+  await fetch(`${SB_URL}/rest/v1/${table}${query}`,{method:'DELETE',headers:H});
+}
+
+// Main game state (auction)
+async function sbLoad(){
+  try{const d=await sbGet('auction_state','?id=eq.1&select=state');return d&&d.length?d[0].state:null;}catch{return null;}
+}
+async function sbSave(s){await sbUpsert('auction_state',{id:1,state:s});}
+async function sbClear(){await sbDelete('auction_state','?id=eq.1');}
+
+// League data (captain, season, stats)
+async function lgLoad(){
+  try{const d=await sbGet('league_data','?id=eq.1&select=data');return d&&d.length?d[0].data:null;}catch{return null;}
+}
+async function lgSave(d){await sbUpsert('league_data',{id:1,data:d});}
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let myRole=null,myName='',gs=null,lg=null,pollId=null,wsConn=null,toastT=null,popT=null;
+let sbTab='squad',seasonTab='ldb',curMatchId=null,capTimerInt=null;
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const cr  = v=>'₹'+(v/100).toFixed(2)+' Cr';
+const crS = v=>(v/100).toFixed(2)+' Cr';
+const inc = b=>b<100?10:b<300?20:b<500?25:50;
+const FLAGS={India:'🇮🇳',Australia:'🇦🇺',England:'🏴󠁧󠁢󠁥󠁮󠁧󠁿','New Zealand':'🇳🇿',Pakistan:'🇵🇰','South Africa':'🇿🇦','West Indies':'🏏','Sri Lanka':'🇱🇰',Afghanistan:'🇦🇫',Zimbabwe:'🇿🇼',Singapore:'🇸🇬'};
+const flag = c=>FLAGS[c]||'🌍';
+const RCL={Batsman:'#2563eb',Bowler:'#dc2626',"All-Rounder":'#7c3aed',"Wicket-Keeper":'#0891b2'};
+const rcl = r=>RCL[r]||'#888';
+const rlt = r=>({Batsman:'#EFF6FF',Bowler:'#FEF2F2',"All-Rounder":'#F5F3FF',"Wicket-Keeper":'#ECFEFF'})[r]||'#F3F4F6';
+const tcl = n=>{const c=['#2563eb','#dc2626','#7c3aed','#0891b2','#059669','#ea580c','#db2777','#ca8a04','#65a30d','#9333ea'];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length];};
+const tl  = ()=>!gs||!gs.timerStart?TIMER:Math.max(0,Math.ceil(TIMER-(Date.now()-gs.timerStart)/1000));
+const el  = id=>document.getElementById(id);
+const pById = id=>PLAYERS.find(p=>p.id===id)||null;
+const sortedPlayers = ()=>[...PLAYERS].sort((a,b)=>CAT_ORDER.indexOf(a.cat)-CAT_ORDER.indexOf(b.cat));
+
+function show(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));el(id).classList.add('on');}
+function toast(msg,d=2600){const t=el('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),d);}
+function vibrate(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch{}}
+function openSb(){el('sidebar').classList.add('on');el('sb-ov').classList.add('on');renderSidebar();}
+function closeSb(){el('sidebar').classList.remove('on');el('sb-ov').classList.remove('on');}
+function switchTab(t){sbTab=t;el('tab-sq').className='sb-tab'+(t==='squad'?' act':'');el('tab-st').className='sb-tab'+(t==='standings'?' act':'');renderSidebar();}
+function switchSeasonTab(t){
+  seasonTab=t;
+  ['ldb','matches','mypts'].forEach(k=>{
+    const btn=el('stab-'+k);if(btn){btn.style.color=t===k?'#F59E0B':'#555';btn.style.borderBottom=t===k?'2px solid #F59E0B':'none';}
+  });
+  renderSeasonBody();
+}
+
+// ══════════════════════════════════════════
+// SQUAD RULES
+// ══════════════════════════════════════════
+function getBlockReason(team,playerCat){
+  if(!team)return null;
+  const bought=team.players,total=bought.length,slotsLeft=MAX_PLAYERS-total;
+  if(slotsLeft<=0)return "Squad full (12/12)";
+  const have={Bowler:0,"All-Rounder":0,"Wicket-Keeper":0};
+  for(const p of bought){if(p.role==="Bowler")have.Bowler++;else if(p.role==="All-Rounder")have["All-Rounder"]++;else if(p.role==="Wicket-Keeper")have["Wicket-Keeper"]++;}
+  const afterRole=["Pace Bowler","Spin Bowler"].includes(playerCat)?"Bowler":playerCat==="All-Rounder"?"All-Rounder":playerCat==="Wicket-Keeper"?"Wicket-Keeper":null;
+  const ha={...have};if(afterRole)ha[afterRole]=(ha[afterRole]||0)+1;
+  const need={Bowler:Math.max(0,2-(ha.Bowler||0)),"All-Rounder":Math.max(0,1-(ha["All-Rounder"]||0)),"Wicket-Keeper":Math.max(0,1-(ha["Wicket-Keeper"]||0))};
+  const totalNeed=need.Bowler+need["All-Rounder"]+need["Wicket-Keeper"];
+  if(totalNeed>slotsLeft-1){
+    if(need["Wicket-Keeper"]>0)return "Must save a slot for Wicket-Keeper";
+    if(need["All-Rounder"]>0)return "Must save a slot for All-Rounder";
+    if(need.Bowler>0)return `Must save ${need.Bowler} slot(s) for Bowlers`;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════
+// REALTIME SYNC
+// ══════════════════════════════════════════
+function startSync(){
+  stopSync();
+  try{
+    const ws=new WebSocket(SB_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SB_KEY+'&vsn=1.0.0');
+    wsConn=ws;
+    ws.onopen=()=>ws.send(JSON.stringify({topic:'realtime:public:auction_state',event:'phx_join',payload:{config:{postgres_changes:[{event:'*',schema:'public',table:'auction_state'}]}},ref:'1'}));
+    ws.onmessage=e=>{
+      try{const m=JSON.parse(e.data);if(m.event==='postgres_changes'||(m.payload&&m.payload.data)){sbLoad().then(s=>{if(s)onAucIncoming(s);});}if(m.event==='phx_reply')ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'}));}catch{}
+    };
+    ws.onerror=ws.onclose=()=>{};
+  }catch{}
+  pollId=setInterval(async()=>{
+    const s=await sbLoad();if(s)onAucIncoming(s);
+    const l=await lgLoad();if(l){lg=l;}
+  },2000);
+}
+function stopSync(){if(pollId)clearInterval(pollId);if(wsConn){try{wsConn.close();}catch{}}pollId=wsConn=null;}
+
+function onAucIncoming(s){
+  const prev=gs;gs=s;
+  if(myRole==='owner'&&prev&&s.bid!==prev.bid&&s.bidder&&s.bidder!==myName)toast('💰 '+s.bidder+' bid '+cr(s.bid)+'!');
+  if(prev&&s.sold&&s.sold.length>(prev.sold||[]).length){const x=s.sold[s.sold.length-1];showSoldPopup(x.name,x.soldTo,x.soldFor);}
+  if(prev&&s.unsold&&s.unsold.length>(prev.unsold||[]).length){const x=s.unsold[s.unsold.length-1];showUnsoldPopup(x.name);}
+  const changed=!prev||s.phase!==prev.phase||s.idx!==prev.idx;
+  if(changed)route();else refreshLive();
+}
+
+// ══════════════════════════════════════════
+// POPUPS
+// ══════════════════════════════════════════
+function showSoldPopup(name,to,price){
+  vibrate([100,50,100]);
+  el('sp-name').textContent=name.toUpperCase();el('sp-to').textContent=to;el('sp-price').textContent=cr(price);
+  const p=el('sold-popup');p.classList.add('show');clearTimeout(popT);popT=setTimeout(()=>p.classList.remove('show'),3800);
+}
+function showUnsoldPopup(name){
+  vibrate([80]);el('up-name').textContent=name.toUpperCase();
+  const p=el('unsold-popup');p.classList.add('show');clearTimeout(popT);popT=setTimeout(()=>p.classList.remove('show'),2500);
+}
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function loginAuc(){
+  const u=el('auc-user').value.trim(),p=el('auc-pass').value;
+  if(u===AUC_USER&&p===AUC_PASS)joinAuc();
+  else{toast('❌ Wrong credentials');vibrate([200]);}
+}
+
+// ══════════════════════════════════════════
+// ROUTING
+// ══════════════════════════════════════════
+function route(){
+  if(!gs||gs.phase==='lobby'){myRole==='auctioneer'?renderLobby():renderWait();return;}
+  if(gs.phase==='captain'){renderCaptain();return;}
+  if(gs.phase==='season'||gs.phase==='ended'){renderSeasonEntry();return;}
+  myRole==='auctioneer'?renderAuc():renderOwner();
+}
+function refreshLive(){
+  const id=document.querySelector('.sc.on')?.id;
+  if(id==='sc-owner')updOwner();
+  else if(id==='sc-auc')updAuc();
+  else if(id==='sc-lobby')renderLobby();
+  else if(id==='sc-wait')renderWait();
+}
+
+// ══════════════════════════════════════════
+// OWNER ENTRY — restore from localStorage
+// ══════════════════════════════════════════
+async function ownerEntry(){
+  const saved=localStorage.getItem('ipl26_name');
+  if(saved){
+    myName=saved;myRole='owner';
+    setupOwnerUI();
+    toast('Welcome back, '+saved+'!');
+    gs=await sbLoad();lg=await lgLoad();
+    startSync();route();
+  }else{show('sc-setup');}
+}
+
+function setupOwnerUI(){
+  el('sb-name-lbl').textContent=myName;el('sb-name-lbl').style.color=tcl(myName);
+  el('mt-btn').style.background=tcl(myName);
+}
+
+// ══════════════════════════════════════════
+// JOIN
+// ══════════════════════════════════════════
+async function joinAuc(){
+  myRole='auctioneer';myName='';
+  localStorage.setItem('ipl26_role','auctioneer');localStorage.removeItem('ipl26_name');
+  toast('Connecting…');
+  gs=await sbLoad();if(!gs){gs=mkGs();await sbSave(gs);}
+  lg=await lgLoad();if(!lg){lg=mkLg();await lgSave(lg);}
+  startSync();route();
+}
+
+async function joinOwner(){
+  const n=el('owner-inp').value.trim();if(!n){toast('Enter your team name!');return;}
+  myName=n;myRole='owner';
+  localStorage.setItem('ipl26_role','owner');localStorage.setItem('ipl26_name',n);
+  setupOwnerUI();toast('Joining…');
+  let s=await sbLoad();if(!s)s=mkGs();
+  if(!s.teams[n])s.teams[n]={budget:BUDGET,players:[]};
+  await sbSave(s);gs=s;
+  lg=await lgLoad();if(!lg){lg=mkLg();await lgSave(lg);}
+  startSync();route();
+}
+
+// ══════════════════════════════════════════
+// INIT STATE
+// ══════════════════════════════════════════
+const mkGs=()=>({phase:'lobby',players:sortedPlayers(),idx:0,bid:0,bidder:null,timerStart:null,teams:{},sold:[],unsold:[]});
+const mkLg=()=>({captainDeadline:null,captains:{},matchStats:{},completedMatches:[]});
+
+// ══════════════════════════════════════════
+// RENDER: LOBBY
+// ══════════════════════════════════════════
+function renderLobby(){
+  show('sc-lobby');
+  const teams=gs?gs.teams:{},names=Object.keys(teams);
+  el('lob-sub').textContent=names.length+' team'+(names.length!==1?'s':'')+' joined · '+PLAYERS.length+' players ready';
+  el('lob-teams').innerHTML=names.map(n=>`<div class="lob-row"><span style="color:${tcl(n)};font-weight:700;font-size:14px">${n}</span><span style="color:var(--muted);font-size:13px">${cr(teams[n].budget)}</span></div>`).join('');
+  el('taken-chips').innerHTML=names.map(n=>`<span class="chip" style="background:${tcl(n)}18;color:${tcl(n)}">${n}</span>`).join('');
+}
+
+// ══════════════════════════════════════════
+// RENDER: WAIT
+// ══════════════════════════════════════════
+function renderWait(){
+  show('sc-wait');
+  el('wait-sub').textContent=myName?'Joined as '+myName+' · Waiting for auctioneer…':'Waiting…';
+  const teams=gs?gs.teams:{};
+  el('wait-list').innerHTML=Object.keys(teams).map(n=>`<div class="w-row"><div class="wdot" style="background:${tcl(n)}"></div><span style="color:${n===myName?tcl(n):'#111'};font-weight:${n===myName?700:400}">${n}${n===myName?' (You)':''}</span></div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// RENDER: OWNER BIDDING
+// ══════════════════════════════════════════
+function renderOwner(){
+  show('sc-owner');
+  const p=gs.players[gs.idx];
+  el('p-pill').textContent='Player '+(gs.idx+1)+' of '+gs.players.length;
+  el('cat-banner').textContent=p.cat.toUpperCase();
+  el('p-name').textContent=p.name.toUpperCase();
+  el('p-meta').textContent=flag(p.country)+' '+p.country+' · '+p.team;
+  const rb=el('p-rbadge');rb.textContent=p.role;rb.style.background=rlt(p.role);rb.style.color=rcl(p.role);
+  el('p-base').textContent=cr(p.base);
+  updOwner();
+}
+
+function updOwner(){
+  if(!gs||gs.phase!=='auction')return;
+  const p=gs.players[gs.idx];
+  const t=gs.teams[myName]||{budget:BUDGET,players:[]};
+  const time=tl(),nb=gs.bid+inc(gs.bid),leading=gs.bidder===myName;
+  const block=getBlockReason(t,p.cat);
+  const canBid=t.budget>=nb&&!leading&&time>0&&!block&&t.players.length<MAX_PLAYERS;
+
+  el('ow-budget').textContent=cr(t.budget);
+  const bb=el('bid-big');bb.textContent=crS(gs.bid);bb.classList.add('pop');setTimeout(()=>bb.classList.remove('pop'),200);
+  const lb=el('ldr');
+  if(leading){lb.textContent="✅ You're leading!";lb.className='ldr ldr-me';}
+  else if(gs.bidder){lb.textContent='🏆 '+gs.bidder+' is leading';lb.className='ldr ldr-ot';}
+  else{lb.textContent='No bids yet';lb.className='ldr ldr-no';}
+  const tn=el('t-num');tn.textContent=time+'s';tn.style.color=time<=8?'var(--red)':time<=15?'var(--amber)':'var(--text)';
+  const tf=el('t-fill');tf.style.width=(time/TIMER*100)+'%';tf.style.background=time<=8?'var(--red)':time<=15?'var(--amber)':'var(--blue)';
+  const btn=el('bid-btn');
+  if(leading){btn.textContent="✅ YOU'RE WINNING";btn.className='bid-btn bb-win';btn.disabled=true;}
+  else if(canBid){btn.textContent='BID  '+crS(nb);btn.className='bid-btn bb-on';btn.disabled=false;}
+  else{btn.textContent=t.players.length>=MAX_PLAYERS?'SQUAD FULL':block?'BLOCKED':t.budget<nb?'💸 LOW BUDGET':'⏰ TIME\'S UP';btn.className='bid-btn bb-off';btn.disabled=true;}
+  el('bid-hint').textContent=canBid?'Raises by '+cr(inc(gs.bid)):'';
+  el('block-reason').textContent=block&&!leading?block:'';
+
+  // Purse strip — all teams sorted desc
+  const sorted=Object.entries(gs.teams).sort((a,b)=>b[1].budget-a[1].budget);
+  el('purse-rows').innerHTML=sorted.map(([n,t2])=>`<div class="purse-row"><span style="color:${tcl(n)};font-weight:700">${n}${n===myName?' ★':''}</span><span style="font-weight:700;color:${n===myName?'var(--blue)':'var(--text)'}">${cr(t2.budget)}</span></div>`).join('');
+
+  renderSidebar();
+}
+
+// ══════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════
+function renderSidebar(){
+  if(!gs)return;
+  const t=gs.teams[myName]||{budget:BUDGET,players:[]};
+  el('sb-budget').textContent=cr(t.budget);el('sb-count').textContent=t.players.length+'/12';
+  sbTab==='squad'?renderMySquad(t):renderStandings();
+}
+
+function renderMySquad(t){
+  if(!t.players.length){el('sb-list').innerHTML='<div style="text-align:center;padding:44px 0;color:#CCC"><div style="font-size:36px">🏏</div><div style="font-size:14px;margin-top:10px">No players yet</div></div>';return;}
+  const groups={};
+  for(const p of t.players){if(!groups[p.role])groups[p.role]=[];groups[p.role].push(p);}
+  let html='';
+  for(const [role,players] of Object.entries(groups)){
+    html+=`<div style="font-size:10px;font-weight:700;color:${rcl(role)};letter-spacing:.5px;margin:10px 0 5px">${role.toUpperCase()}S</div>`;
+    html+=players.map(p=>`<div class="sb-row"><div><div style="font-size:13px;font-weight:700">${p.name}</div><div style="font-size:11px;color:#888;margin-top:2px">${p.team}</div></div><div style="font-size:13px;font-weight:900;color:${tcl(myName)}">${cr(p.soldFor)}</div></div>`).join('');
+  }
+  const b=t.players.filter(p=>p.role==='Bowler').length,a=t.players.filter(p=>p.role==='All-Rounder').length,w=t.players.filter(p=>p.role==='Wicket-Keeper').length;
+  html+=`<div style="background:#F9FAFB;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px">
+    <div style="font-weight:700;font-size:11px;letter-spacing:.5px;margin-bottom:6px">MIN REQUIREMENTS</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>Bowlers</span><span style="font-weight:700;color:${b>=2?'var(--green)':'var(--red)'}">${b}/2</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>All-Rounders</span><span style="font-weight:700;color:${a>=1?'var(--green)':'var(--red)'}">${a}/1</span></div>
+    <div style="display:flex;justify-content:space-between"><span>Wicket-Keepers</span><span style="font-weight:700;color:${w>=1?'var(--green)':'var(--red)'}">${w}/1</span></div>
+  </div>`;
+  html+=`<button onclick="downloadPDF()" style="width:100%;margin-top:10px;padding:11px;background:#F3F4F6;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--B)">📄 Download Squad PDF</button>`;
+  el('sb-list').innerHTML=html;
+}
+
+function renderStandings(){
+  if(!gs||!gs.teams){el('sb-list').innerHTML='<div style="text-align:center;padding:44px 0;color:#CCC">No teams yet</div>';return;}
+  const sorted=Object.entries(gs.teams).sort((a,b)=>b[1].budget-a[1].budget);
+  let html='<div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;padding:4px 2px 8px">BY REMAINING PURSE</div>';
+  sorted.forEach(([n,t],i)=>{
+    const cap=lg&&lg.captains&&lg.captains[n];
+    html+=`<div class="std-team" style="border:1.5px solid ${n===myName?tcl(n)+'44':'transparent'}">
+      <div class="std-hdr">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:#CCC;font-size:11px">#${i+1}</span>
+          <span style="color:${tcl(n)};font-weight:900;font-size:13px">${n}${n===myName?' ★':''}</span>
+        </div>
+        <div style="text-align:right"><div style="font-size:13px;font-weight:900;color:var(--blue)">${cr(t.budget)}</div><div style="font-size:10px;color:var(--muted)">${t.players.length}/12</div></div>
+      </div>
+      <div class="standings-players">${t.players.map(p=>`<span class="std-ptag" style="background:${rlt(p.role)};color:${rcl(p.role)}">${p.name}${cap&&cap.captain===p.id?' (C)':cap&&cap.viceCaptain===p.id?' (VC)':''}</span>`).join('')}</div>
+    </div>`;
+  });
+  el('sb-list').innerHTML=html;
+}
+
+// ══════════════════════════════════════════
+// RENDER: AUCTIONEER
+// ══════════════════════════════════════════
+function renderAuc(){
+  show('sc-auc');
+  const p=gs.players[gs.idx];
+  el('a-count').textContent=gs.sold.length+'/'+gs.players.length+' sold';
+  el('a-prog').style.width=(gs.sold.length/gs.players.length*100)+'%';
+  el('a-pname').textContent=p.name.toUpperCase();
+  el('a-pmeta').textContent=flag(p.country)+' '+p.country+' · '+p.role+' · '+p.team;
+  el('a-cat-tag').textContent=p.cat.toUpperCase();
+  el('a-pbase').textContent=cr(p.base);
+  updAuc();
+}
+
+function updAuc(){
+  if(!gs||gs.phase!=='auction')return;
+  const time=tl();
+  const at=el('a-tnum');at.textContent=time;at.style.color=time<=8?'#EF4444':time<=15?'#F59E0B':'#fff';
+  const af=el('a-tbar');af.style.width=(time/TIMER*100)+'%';af.style.background=time<=8?'#EF4444':time<=15?'#F59E0B':'#3B82F6';
+  el('a-bnum').textContent=cr(gs.bid);
+  const al=el('a-leader');al.textContent=gs.bidder?'🏆 '+gs.bidder:'No bids yet';al.style.color=gs.bidder?tcl(gs.bidder):'#444';
+  el('btn-sell').disabled=!gs.bidder;
+  const sorted=Object.entries(gs.teams).sort((a,b)=>b[1].budget-a[1].budget);
+  el('a-teams').innerHTML=sorted.map(([n,t])=>`<div class="a-trow"><div><div style="color:${tcl(n)};font-weight:700;font-size:13px">${n}</div><div style="color:#444;font-size:11px">${t.players.length}/12</div></div><div style="color:#F59E0B;font-weight:800;font-size:13px">${cr(t.budget)}</div></div>`).join('');
+  if(gs.sold.length){el('a-sold-wrap').style.display='block';el('a-sold').innerHTML=[...gs.sold].reverse().slice(0,20).map(x=>`<div class="a-sold-item"><div style="font-size:12px;font-weight:700;color:#CCC">${x.name}</div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:${tcl(x.soldTo)}">${x.soldTo}</span><span style="color:#F59E0B;font-weight:700">${cr(x.soldFor)}</span></div></div>`).join('');}
+}
+
+// ══════════════════════════════════════════
+// CAPTAIN SELECTION
+// ══════════════════════════════════════════
+function renderCaptain(){
+  show('sc-captain');
+  if(!myName||!gs||!gs.teams[myName]){show('sc-wait');return;}
+  const capData=lg&&lg.captains?lg.captains[myName]:null;
+  const locked=capData&&capData.locked;
+  if(locked){
+    el('cap-locked-banner').style.display='block';
+    const c=pById(capData.captain),vc=pById(capData.viceCaptain);
+    el('cap-locked-msg').textContent=(c?c.name:'?')+' (C) · '+(vc?vc.name:'?')+' (VC)';
+    el('cap-sub').textContent='Your selections are locked in.';
+  }else{
+    el('cap-locked-banner').style.display='none';
+    el('cap-sub').textContent='Tap once → Captain (C) · Tap same → Vice Captain (VC) · Tap again → Clear';
+  }
+  startCapTimer();
+  renderCapPlayers(capData,locked);
+}
+
+let capSel={captain:null,viceCaptain:null};
+function renderCapPlayers(capData,locked){
+  const t=gs.teams[myName];
+  if(capData){capSel={captain:capData.captain,viceCaptain:capData.viceCaptain};}
+  const sorted=[...t.players].sort((a,b)=>b.soldFor-a.soldFor);
+  let html='';
+  sorted.forEach(p=>{
+    const isCap=capSel.captain===p.id,isVC=capSel.viceCaptain===p.id;
+    html+=`<div class="cap-player ${isCap?'is-cap':isVC?'is-vc':''}" onclick="${locked?'':('tapCap('+p.id+')')}">
+      <div>
+        <div style="font-weight:700;font-size:15px">${p.name}</div>
+        <div style="font-size:12px;color:${rcl(p.role)};margin-top:2px">${p.role} · ${p.team}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${cr(p.soldFor)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${isCap?'<span class="cap-badge c">CAPTAIN</span>':''}
+        ${isVC?'<span class="cap-badge vc">VICE CAP</span>':''}
+        ${isCap?'<span style="font-size:11px;color:var(--amber)">×2 points</span>':''}
+        ${isVC?'<span style="font-size:11px;color:var(--blue)">×1.5 points</span>':''}
+      </div>
+    </div>`;
+  });
+  if(!locked){
+    html+=`<button class="cap-lock-btn" onclick="lockCaptain()">🔒 LOCK IN MY SELECTIONS</button>`;
+    html+=`<div style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;margin-bottom:20px">Once locked, cannot be changed</div>`;
+  }
+  el('cap-body').innerHTML=html;
+}
+
+function tapCap(pid){
+  if(capSel.captain===pid){capSel.captain=null;}
+  else if(capSel.viceCaptain===pid){capSel.viceCaptain=null;}
+  else if(!capSel.captain){capSel.captain=pid;}
+  else if(!capSel.viceCaptain&&pid!==capSel.captain){capSel.viceCaptain=pid;}
+  else{capSel={captain:pid,viceCaptain:capSel.captain};}
+  renderCapPlayers(null,false);
+  // Auto-save draft to supabase
+  saveCaptainDraft();
+}
+
+async function saveCaptainDraft(){
+  if(!lg)lg=mkLg();
+  if(!lg.captains)lg.captains={};
+  lg.captains[myName]={...capSel,locked:false};
+  await lgSave(lg);
+}
+
+async function lockCaptain(){
+  if(!capSel.captain||!capSel.viceCaptain){toast('Select both Captain and Vice Captain first!');return;}
+  if(!confirm('Lock in your selections? This cannot be undone.'))return;
+  if(!lg)lg=mkLg();
+  if(!lg.captains)lg.captains={};
+  lg.captains[myName]={captain:capSel.captain,viceCaptain:capSel.viceCaptain,locked:true};
+  await lgSave(lg);
+  vibrate([100,50,200]);
+  toast('✅ Captain & Vice Captain locked!');
+  renderCaptain();
+}
+
+function startCapTimer(){
+  clearInterval(capTimerInt);
+  if(!lg||!lg.captainDeadline){
+    el('cap-timer').textContent='--:--';return;
+  }
+  function tick(){
+    const left=Math.max(0,lg.captainDeadline-Date.now());
+    const m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);
+    const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    el('cap-timer').textContent=str;
+    if(left<=300000)el('cap-timer').className='cap-timer';else el('cap-timer').className='cap-timer ok';
+    if(left<=0){clearInterval(capTimerInt);autoAssignAll();}
+  }
+  tick();capTimerInt=setInterval(tick,1000);
+}
+
+async function autoAssignAll(){
+  if(myRole!=='auctioneer')return;
+  let l=await lgLoad();if(!l)return;
+  const teams=gs?gs.teams:{};
+  for(const [name,team] of Object.entries(teams)){
+    if(l.captains&&l.captains[name]&&l.captains[name].locked)continue;
+    const sorted=[...team.players].sort((a,b)=>b.soldFor-a.soldFor);
+    if(sorted.length>=2){
+      l.captains=l.captains||{};
+      l.captains[name]={captain:sorted[0].id,viceCaptain:sorted[1].id,locked:true,autoAssigned:true};
+    }
+  }
+  await lgSave(l);lg=l;
+  toast('⏰ Captain deadline passed — auto-assigned for missing teams');
+}
+
+// ══════════════════════════════════════════
+// SEASON / LEADERBOARD
+// ══════════════════════════════════════════
+function renderSeasonEntry(){show('sc-season');renderSeasonBody();}
+
+function renderSeasonBody(){
+  const body=el('season-body');
+  if(seasonTab==='ldb')renderLeaderboard(body);
+  else if(seasonTab==='matches')renderMatchSchedule(body);
+  else renderMyPoints(body);
+}
+
+function calcOwnerPoints(ownerName){
+  if(!gs||!gs.teams||!gs.teams[ownerName])return 0;
+  if(!lg||!lg.matchStats)return 0;
+  const team=gs.teams[ownerName];
+  const capData=lg.captains&&lg.captains[ownerName];
+  let total=0;
+  for(const stats of Object.values(lg.matchStats)){
+    for(const p of team.players){
+      const ps=stats[p.id];if(!ps||!ps.played)continue;
+      let pts=calcPlayerPoints(ps);
+      if(capData&&capData.captain===p.id)pts*=2;
+      else if(capData&&capData.viceCaptain===p.id)pts*=1.5;
+      total+=pts;
+    }
+  }
+  return Math.round(total*10)/10;
+}
+
+function calcPlayerPoints(s){
+  let pts=0;
+  if(s.played)pts+=4;
+  // Batting
+  pts+=s.runs||0;
+  if((s.runs||0)>=100)pts+=16;else if((s.runs||0)>=50)pts+=8;
+  if((s.dismissed)&&(s.runs||0)===0)pts-=2;
+  pts+=(s.fours||0);pts+=(s.sixes||0)*2;
+  if((s.balls||0)>=10){const sr=(s.runs||0)/(s.balls)*100;if(sr>170)pts+=6;else if(sr>150)pts+=4;else if(sr>130)pts+=2;else if(sr<50)pts-=4;else if(sr<60)pts-=2;}
+  // Bowling
+  pts+=(s.wickets||0)*25;
+  if((s.wickets||0)>=5)pts+=16;else if((s.wickets||0)>=4)pts+=8;else if((s.wickets||0)>=3)pts+=4;
+  pts+=(s.maidens||0)*4;
+  if((s.overs||0)>=2){const eco=(s.runsGiven||0)/(s.overs);if(eco<5)pts+=6;else if(eco<6)pts+=4;else if(eco<7)pts+=2;else if(eco>=11)pts-=4;else if(eco>=10)pts-=2;}
+  // Fielding
+  pts+=(s.catches||0)*8;pts+=(s.stumpings||0)*12;pts+=(s.runOutDirect||0)*12;pts+=(s.runOutIndirect||0)*6;
+  return pts;
+}
+
+function renderLeaderboard(body){
+  if(!gs||!gs.teams){body.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Auction not started yet</div>';return;}
+  const teams=Object.keys(gs.teams);
+  const scored=teams.map(n=>({name:n,pts:calcOwnerPoints(n)})).sort((a,b)=>b.pts-a.pts);
+  const completed=lg&&lg.completedMatches?lg.completedMatches.length:0;
+  let html=`<div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">${completed} matches completed · Points update after each match</div>`;
+  // Podium top 3
+  if(scored.length>=3){
+    html+=`<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;margin-bottom:20px;height:120px">`;
+    const order=[scored[1],scored[0],scored[2]];
+    const heights=['70px','100px','55px'];
+    const colors=['#94A3B8','#F59E0B','#CD7C2F'];
+    order.forEach((t,i)=>{
+      const rank=i===1?1:i===0?2:3;
+      html+=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="font-size:11px;font-weight:700;color:${tcl(t.name)};text-align:center;max-width:75px;margin-bottom:4px">${t.name}</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${t.pts} pts</div>
+        <div style="width:75px;height:${heights[i]};background:${colors[i]};border-radius:6px 6px 0 0;display:flex;align-items:center;justify-content:center;font-family:var(--F);font-size:22px;color:#fff">#${rank}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  scored.forEach((t,i)=>{
+    const isMe=t.name===myName;
+    html+=`<div class="ldb-card" style="border:1.5px solid ${isMe?tcl(t.name)+'44':'var(--border)'}">
+      <div class="ldb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">#${i+1}</div>
+      <div style="flex:1"><div style="font-weight:900;font-size:15px;color:${tcl(t.name)}">${t.name}${isMe?' ★':''}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${gs.teams[t.name].players.length} players</div></div>
+      <div class="ldb-pts">${t.pts}</div>
+    </div>`;
+  });
+  body.innerHTML=html;
+}
+
+function renderMatchSchedule(body){
+  const completed=lg&&lg.completedMatches?lg.completedMatches:[];
+  let html='';
+  MATCHES.forEach(m=>{
+    const done=completed.includes(m.id);
+    const d=new Date(m.date);
+    const ds=d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    html+=`<div class="match-card">
+      <div>
+        <div class="match-date">Match ${m.num} · ${ds} · ${m.venue}</div>
+        <div class="match-teams">${m.t1} vs ${m.t2}</div>
+      </div>
+      <span class="${done?'match-status-done':'match-status-up'}">${done?'Done':'Soon'}</span>
+    </div>`;
+  });
+  body.innerHTML=html;
+}
+
+function renderMyPoints(body){
+  if(!myName||!gs||!gs.teams[myName]){body.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Join as an owner to see your points</div>';return;}
+  const team=gs.teams[myName];
+  const capData=lg&&lg.captains&&lg.captains[myName];
+  const completed=lg&&lg.completedMatches?lg.completedMatches:[];
+  let html=`<div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px">YOUR SQUAD POINTS — ALL MATCHES</div>`;
+  const playerTotals=team.players.map(p=>{
+    let total=0;
+    completed.forEach(mid=>{const ps=lg.matchStats&&lg.matchStats[mid]&&lg.matchStats[mid][p.id];if(ps&&ps.played)total+=calcPlayerPoints(ps);});
+    let display=total;
+    const isCap=capData&&capData.captain===p.id,isVC=capData&&capData.viceCaptain===p.id;
+    if(isCap)display=total*2;else if(isVC)display=total*1.5;
+    return{...p,raw:total,display:Math.round(display*10)/10,isCap,isVC};
+  }).sort((a,b)=>b.display-a.display);
+  playerTotals.forEach(p=>{
+    html+=`<div class="match-card">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${p.name}${p.isCap?' 👑 (C)':p.isVC?' ⭐ (VC)':''}</div>
+        <div style="font-size:12px;color:${rcl(p.role)};margin-top:2px">${p.role} · ${p.team}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--F);font-size:20px;color:var(--blue)">${p.display}</div>
+        ${(p.isCap||p.isVC)?`<div style="font-size:10px;color:var(--muted)">${p.raw} raw × ${p.isCap?'2':'1.5'}</div>`:''}
+      </div>
+    </div>`;
+  });
+  const total=calcOwnerPoints(myName);
+  html+=`<div style="background:var(--blue);border-radius:16px;padding:16px;text-align:center;margin-top:14px"><div style="font-size:12px;color:rgba(255,255,255,.7)">TOTAL SEASON POINTS</div><div style="font-family:var(--F);font-size:44px;color:#fff;letter-spacing:1px">${total}</div></div>`;
+  body.innerHTML=html;
+}
+
+// ══════════════════════════════════════════
+// ADMIN: MATCH STATS ENTRY
+// ══════════════════════════════════════════
+function renderAdminMatchPick(){
+  const completed=lg&&lg.completedMatches?lg.completedMatches:[];
+  el('admin-match-list').innerHTML=MATCHES.map(m=>{
+    const done=completed.includes(m.id);
+    const d=new Date(m.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    return `<div class="match-card" style="cursor:pointer" onclick="pickMatch(${m.id})">
+      <div style="flex:1">
+        <div class="match-date">Match ${m.num} · ${d} · ${m.venue}</div>
+        <div class="match-teams">${m.t1} vs ${m.t2}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="${done?'match-status-done':'match-status-up'}">${done?'Done':'Enter'}</span>
+        ${done?'<span style="font-size:10px;color:var(--muted)">Re-enter</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pickMatch(mid){
+  curMatchId=mid;
+  const m=MATCHES.find(x=>x.id===mid);
+  el('admin-match-ttl').textContent='Match '+m.num+': '+m.t1+' vs '+m.t2;
+  el('admin-match-sub').textContent=new Date(m.date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+' · '+m.venue;
+  // Build player list — all auction players
+  let html='';
+  const existing=lg&&lg.matchStats&&lg.matchStats[mid]?lg.matchStats[mid]:{};
+  PLAYERS.forEach(p=>{
+    const prev=existing[p.id]||{};
+    html+=`<div class="player-stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-weight:700;font-size:14px">${p.name}</div>
+          <div style="font-size:12px;color:${rcl(p.role)};margin-top:2px">${p.role} · ${p.team}</div>
+        </div>
+        <div class="played-toggle">
+          <button id="pl-${p.id}" class="toggle-btn ${prev.played?'act':''}" onclick="togglePlayed(${p.id})">Playing XI</button>
+        </div>
+      </div>
+      <div id="stats-${p.id}" style="${prev.played?'':'display:none'}">
+        <div class="stat-row">
+          <div class="stat-field"><label>RUNS</label><input class="stat-inp" id="s${p.id}_runs" type="number" min="0" value="${prev.runs||0}"></div>
+          <div class="stat-field"><label>BALLS</label><input class="stat-inp" id="s${p.id}_balls" type="number" min="0" value="${prev.balls||0}"></div>
+          <div class="stat-field"><label>4s</label><input class="stat-inp" id="s${p.id}_fours" type="number" min="0" value="${prev.fours||0}"></div>
+          <div class="stat-field"><label>6s</label><input class="stat-inp" id="s${p.id}_sixes" type="number" min="0" value="${prev.sixes||0}"></div>
+          <div class="stat-field"><label>OUT?</label><select class="stat-inp" id="s${p.id}_out"><option value="0" ${!prev.dismissed?'selected':''}>No</option><option value="1" ${prev.dismissed?'selected':''}>Yes</option></select></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-field"><label>WKTS</label><input class="stat-inp" id="s${p.id}_wkts" type="number" min="0" value="${prev.wickets||0}"></div>
+          <div class="stat-field"><label>OVERS</label><input class="stat-inp" id="s${p.id}_overs" type="number" min="0" step="0.1" value="${prev.overs||0}"></div>
+          <div class="stat-field"><label>RUNS GVN</label><input class="stat-inp" id="s${p.id}_rg" type="number" min="0" value="${prev.runsGiven||0}"></div>
+          <div class="stat-field"><label>MAIDENS</label><input class="stat-inp" id="s${p.id}_maiden" type="number" min="0" value="${prev.maidens||0}"></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-field"><label>CATCHES</label><input class="stat-inp" id="s${p.id}_ct" type="number" min="0" value="${prev.catches||0}"></div>
+          <div class="stat-field"><label>STUMP</label><input class="stat-inp" id="s${p.id}_st" type="number" min="0" value="${prev.stumpings||0}"></div>
+          <div class="stat-field"><label>RO DIR</label><input class="stat-inp" id="s${p.id}_rod" type="number" min="0" value="${prev.runOutDirect||0}"></div>
+          <div class="stat-field"><label>RO IND</label><input class="stat-inp" id="s${p.id}_roi" type="number" min="0" value="${prev.runOutIndirect||0}"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  el('admin-players-list').innerHTML=html;
+  show('sc-admin');
+}
+
+function togglePlayed(pid){
+  const btn=el('pl-'+pid),stats=el('stats-'+pid);
+  const on=!btn.classList.contains('act');
+  btn.classList.toggle('act',on);
+  stats.style.display=on?'block':'none';
+}
+
+async function submitStats(){
+  if(!curMatchId){toast('No match selected');return;}
+  if(!confirm('Save stats for this match? Points will update for all teams.'))return;
+  const statsForMatch={};
+  PLAYERS.forEach(p=>{
+    const btn=el('pl-'+p.id);
+    const played=btn&&btn.classList.contains('act');
+    statsForMatch[p.id]={
+      played,
+      runs:played?parseInt(el('s'+p.id+'_runs')?.value||0):0,
+      balls:played?parseInt(el('s'+p.id+'_balls')?.value||0):0,
+      fours:played?parseInt(el('s'+p.id+'_fours')?.value||0):0,
+      sixes:played?parseInt(el('s'+p.id+'_sixes')?.value||0):0,
+      dismissed:played?el('s'+p.id+'_out')?.value==='1':false,
+      wickets:played?parseInt(el('s'+p.id+'_wkts')?.value||0):0,
+      overs:played?parseFloat(el('s'+p.id+'_overs')?.value||0):0,
+      runsGiven:played?parseInt(el('s'+p.id+'_rg')?.value||0):0,
+      maidens:played?parseInt(el('s'+p.id+'_maiden')?.value||0):0,
+      catches:played?parseInt(el('s'+p.id+'_ct')?.value||0):0,
+      stumpings:played?parseInt(el('s'+p.id+'_st')?.value||0):0,
+      runOutDirect:played?parseInt(el('s'+p.id+'_rod')?.value||0):0,
+      runOutIndirect:played?parseInt(el('s'+p.id+'_roi')?.value||0):0,
+    };
+  });
+  if(!lg)lg=mkLg();
+  if(!lg.matchStats)lg.matchStats={};
+  lg.matchStats[curMatchId]=statsForMatch;
+  if(!lg.completedMatches)lg.completedMatches=[];
+  if(!lg.completedMatches.includes(curMatchId))lg.completedMatches.push(curMatchId);
+  await lgSave(lg);
+  toast('✅ Match stats saved! Leaderboard updated.');
+  vibrate([100,50,100]);
+  show('sc-admin-pick');
+  renderAdminMatchPick();
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+async function startAuction(){
+  let s=await sbLoad()||mkGs();
+  s.phase='auction';s.players=sortedPlayers();s.idx=0;s.bid=s.players[0].base;
+  s.bidder=null;s.timerStart=Date.now();s.sold=[];s.unsold=[];
+  await sbSave(s);gs=s;renderAuc();
+}
+
+async function doBid(){
+  let s=await sbLoad();if(!s||s.phase!=='auction')return;
+  const t=s.teams[myName];if(!t){toast('Rejoin as owner');return;}
+  if((Date.now()-s.timerStart)/1000>TIMER){toast('⏰ Time\'s up!');return;}
+  if(s.bidder===myName){toast('You already have the highest bid!');return;}
+  if(t.players.length>=MAX_PLAYERS){toast('Squad full — 12 players max');return;}
+  const p=s.players[s.idx];
+  const block=getBlockReason(t,p.cat);if(block){toast('🚫 '+block);vibrate([200,50,200]);return;}
+  const nb=s.bid+inc(s.bid);if(t.budget<nb){toast('❌ Not enough budget!');return;}
+  vibrate([50]);
+  s.bid=nb;s.bidder=myName;s.timerStart=Date.now();
+  await sbSave(s);gs=s;updOwner();
+}
+
+async function doSell(){
+  let s=await sbLoad();if(!s||!s.bidder)return;
+  const p=s.players[s.idx];
+  s.teams[s.bidder].budget-=s.bid;
+  s.teams[s.bidder].players.push({...p,soldFor:s.bid});
+  s.sold.push({...p,soldFor:s.bid,soldTo:s.bidder});
+  adv(s);await sbSave(s);gs=s;
+  showSoldPopup(p.name,s.sold[s.sold.length-1].soldTo,s.sold[s.sold.length-1].soldFor);
+  setTimeout(()=>renderAuc(),200);
+}
+
+async function doUnsold(){
+  let s=await sbLoad();if(!s)return;
+  const p=s.players[s.idx];s.unsold.push(p);adv(s);await sbSave(s);gs=s;
+  showUnsoldPopup(p.name);setTimeout(()=>renderAuc(),200);
+}
+
+async function endEarly(){
+  if(!confirm('End auction now? All remaining players marked unsold.'))return;
+  let s=await sbLoad();if(!s)return;
+  while(s.idx<s.players.length){s.unsold.push(s.players[s.idx]);s.idx++;}
+  s.phase='captain';
+  // Set captain deadline
+  let l=await lgLoad()||mkLg();
+  l.captainDeadline=Date.now()+CAP_MINS*60*1000;
+  await lgSave(l);lg=l;
+  await sbSave(s);gs=s;
+  toast('Auction ended — Captain selection window open (20 min)');
+  renderAuc(); // auctioneer stays on auc screen, can go to season
+}
+
+function adv(s){
+  const nx=s.idx+1;
+  if(nx>=s.players.length){
+    s.phase='captain';
+    // set captain deadline async
+    lgLoad().then(l=>{if(!l)l=mkLg();l.captainDeadline=Date.now()+CAP_MINS*60*1000;lgSave(l).then(()=>{lg=l;});});
+  }else{s.idx=nx;s.bid=s.players[nx].base;s.bidder=null;s.timerStart=Date.now();}
+}
+
+async function doReset(){
+  if(!confirm('Reset everything? All auction data, teams, stats and points will be permanently deleted.'))return;
+  stopSync();
+  toast('Deleting…');
+  await sbClear();
+  try{
+    await fetch(SB_URL+'/rest/v1/league_teams?id=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/player_stats?id=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/matches?match_number=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/leagues?id=gt.id',{method:'DELETE',headers:H});
+  }catch(e){console.log('clear',e);}
+  gs=null;lg=null;myRole=null;myName='';
+  localStorage.removeItem('ipl26_role');localStorage.removeItem('ipl26_name');
+  show('sc-land');
+  setTimeout(()=>updateLandingStatus(),500);
+}
+
+// ══════════════════════════════════════════
+// PDF DOWNLOAD
+// ══════════════════════════════════════════
+function downloadPDF(){
+  if(!myName||!gs||!gs.teams||!gs.teams[myName]){toast('No squad yet');return;}
+  const t=gs.teams[myName],capData=lg&&lg.captains&&lg.captains[myName];
+  el('pr-ttl').textContent=myName+' — My Squad';
+  el('pr-sub').textContent='IPL Fantasy League 2026 · '+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  el('pr-stats').innerHTML=`<span class="pr-stat">💰 Spent: ${cr(BUDGET-t.budget)}</span><span class="pr-stat">🏦 Left: ${cr(t.budget)}</span><span class="pr-stat">👥 ${t.players.length}/12 players</span>`;
+  const groups={Batsman:[],Bowler:[],"Wicket-Keeper":[],"All-Rounder":[]};
+  for(const p of t.players){(groups[p.role]=groups[p.role]||[]).push(p);}
+  let html='';
+  for(const [role,players] of Object.entries(groups)){
+    if(!players.length)continue;
+    html+=`<div class="pr-sec-ttl">${role}s</div>`;
+    html+=players.map((p,i)=>`<div class="pr-row"><span>${i+1}. ${p.name}${capData&&capData.captain===p.id?' (C)':capData&&capData.viceCaptain===p.id?' (VC)':''} <span style="color:#888">(${p.team})</span></span><span style="font-weight:700">${cr(p.soldFor)}</span></div>`).join('');
+  }
+  const total=calcOwnerPoints(myName);
+  if(total>0)html+=`<div style="margin-top:14px;padding-top:10px;border-top:2px solid #111;font-size:14px;font-weight:700">Season Points: ${total}</div>`;
+  el('pr-players').innerHTML=html;
+  window.print();
+}
+
+// ══════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════
+el('owner-inp').addEventListener('keydown',e=>{if(e.key==='Enter')joinOwner();});
+el('auc-pass').addEventListener('keydown',e=>{if(e.key==='Enter')loginAuc();});
+el('auc-user').addEventListener('keydown',e=>{if(e.key==='Enter')el('auc-pass').focus();});
+
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// LANDING STATUS CHECK
+// ══════════════════════════════════════════
+function phaseLabel(phase,gs){
+  if(!phase||phase==='lobby'){
+    const n=gs&&gs.teams?Object.keys(gs.teams).length:0;
+    return{txt:'Lobby — '+n+' team'+(n!==1?'s':'')+' waiting',sub:'Tap Continue to enter the auction room'};
+  }
+  if(phase==='auction'){
+    const sold=gs&&gs.sold?gs.sold.length:0;
+    const total=gs&&gs.players?gs.players.length:0;
+    return{txt:'Auction Live — '+sold+'/'+total+' players sold',sub:'Tap Continue to rejoin the auction'};
+  }
+  if(phase==='captain')return{txt:'Captain Selection in progress',sub:'20-minute window to pick C & VC'};
+  if(phase==='season')return{txt:'Season Live — points tracking active',sub:'Tap Continue to see the leaderboard'};
+  if(phase==='ended')return{txt:'Season ended — final results ready',sub:'Tap to see the leaderboard'};
+  return{txt:'Game in progress',sub:'Tap Continue to rejoin'};
+}
+
+async function updateLandingStatus(){
+  const existing=await sbLoad();
+  if(existing&&existing.phase){
+    const{txt,sub}=phaseLabel(existing.phase,existing);
+    el('land-status').style.display='block';
+    el('land-status-txt').textContent=txt;
+    el('land-status-sub').textContent=sub;
+    el('btn-continue').style.display='block';
+    el('btn-new-auction').style.display='block';
+  } else {
+    el('land-status').style.display='none';
+    el('btn-continue').style.display='none';
+    el('btn-new-auction').style.display='none';
+  }
+}
+
+async function continueGame(){
+  // Restore whoever they were, or just load the state
+  const role=localStorage.getItem('ipl26_role'),name=localStorage.getItem('ipl26_name');
+  if(role){
+    myRole=role;myName=name||'';
+    if(myName)setupOwnerUI();
+  }
+  gs=await sbLoad();lg=await lgLoad();
+  if(!lg)lg=mkLg();
+  startSync();route();
+}
+
+async function startFreshAuction(){
+  if(!confirm('⚠️ Delete ALL existing auction data and start fresh?\n\nThis cannot be undone. All teams, bids, stats and points will be permanently deleted.'))return;
+  toast('Deleting old data…');
+  stopSync();
+  // Clear all tables
+  await sbClear();
+  try{
+    await fetch(SB_URL+'/rest/v1/league_teams?id=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/player_stats?id=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/matches?match_number=gt.0',{method:'DELETE',headers:H});
+    await fetch(SB_URL+'/rest/v1/leagues?id=gt.id',{method:'DELETE',headers:H});
+  }catch(e){console.log('Clear error (ok)',e);}
+  // Clear local
+  gs=null;lg=null;myRole=null;myName='';
+  localStorage.removeItem('ipl26_role');localStorage.removeItem('ipl26_name');
+  // Update UI
+  el('land-status').style.display='none';
+  el('btn-continue').style.display='none';
+  el('btn-new-auction').style.display='none';
+  toast('✅ Cleared! Ready for new auction.');
+}
+
+// BOOT — restore session from localStorage
+// ══════════════════════════════════════════
+(async()=>{
+  // Always check and update landing screen status first
+  updateLandingStatus();
+
+  const role=localStorage.getItem('ipl26_role'),name=localStorage.getItem('ipl26_name');
+  if(role){
+    myRole=role;myName=name||'';
+    if(myName)setupOwnerUI();
+    toast('Reconnecting…');
+    gs=await sbLoad();lg=await lgLoad();
+    if(!lg)lg=mkLg();
+    startSync();route();
+  }
+})();
+</script>
+</body>
+</html>
